@@ -17,6 +17,7 @@ import sys
 
 from cluster_16S.pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
     gzip_files, ungzip_files, run_cmd, PipelineException
+from cluster_16S.fasta_qual_to_fastq import fasta_qual_to_fastq
 
 
 def main():
@@ -158,7 +159,26 @@ class Pipeline:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.debug('output_dir: %s', output_dir)
-
+            # Check for fasta and qual files
+            fasta_file_glob = os.path.join(input_dir, '*fasta*')
+            qual_file_glob = os.path.join(input_dir, '*.qual*')
+            fasta_files = sorted(glob.glob(fasta_file_glob))
+            qual_files = sorted(glob.glob(qual_file_glob))
+            fastas_no_slashes = [fasta.replace('\\', ' ').replace('/', ' ').split()[-1] for fasta in fasta_files]
+            quals_no_slashes = [qual.replace('\\', ' ').replace('/', ' ').split()[-1] for qual in qual_files]
+            fastas = [fasta.split(".")[0] for fasta in fastas_no_slashes]
+            quals = [qual.split('.')[0] for qual in quals_no_slashes]
+            for fasta in fastas:
+                for qual in quals:
+                    if fasta == qual:
+                        tmpfasta = os.path.join(input_dir, fasta + ".fasta")
+                        tmpqual = os.path.join(input_dir, qual + ".qual")
+                        tmpfastq = os.path.join(input_dir, fasta + ".fastq")
+                        log.info("Creating %s", tmpfastq)
+                        fasta_qual_to_fastq(tmpfasta, tmpqual, tmpfastq)
+                        log.info('%s created', tmpfastq)
+                        quals.remove(qual)
+                        break
             input_file_glob = os.path.join(input_dir, '*.fastq*')
             log.debug('input_file_glob: %s', input_file_glob)
             input_fp_list = sorted(glob.glob(input_file_glob))
