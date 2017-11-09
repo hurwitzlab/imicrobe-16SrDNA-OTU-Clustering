@@ -15,9 +15,10 @@ There are three ways to run this pipeline.
 ## Install and Run as a Python 3.6+ Package
 
 The only requirement to run the pipeline as a Python 3.6+ package is a Python 3.6+ interpreter and `Git`. It is not required but is highly recommended to install the pipeline in a virtual environment.
-Install the pipeline with `pip`:
+First install `numpy`, which must be in place for the rest of the installation to succeed. Then install the pipeline with `pip`. For example:
 
 ```
+$ pip install numpy
 $ pip install git+https://github.com/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering.git
 ```
 
