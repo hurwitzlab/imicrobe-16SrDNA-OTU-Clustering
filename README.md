@@ -1,6 +1,6 @@
 # imicrobe-16SrDNA-OTU-Clustering
 
-[![Build Status](https://travis-ci.org/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering.svg?branch=develop)](https://travis-ci.org/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering)
+[![Build Status](https://travis-ci.org/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering.svg?branch=master)](https://travis-ci.org/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering)
 
 An OTU clustering pipeline for paired-end 16S data.
 
