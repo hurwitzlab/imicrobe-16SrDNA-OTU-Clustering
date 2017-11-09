@@ -105,7 +105,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'pipeline=cluster_16S.pipeline:main',
+            'cluster_16S=cluster_16S.pipeline:main',
             'write_launcher_job_file=cluster_16S.write_launcher_job_file:main'
         ],
     },
