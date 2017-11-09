@@ -22,7 +22,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.3',
+    version='1.0.4',
 
     description='A pipeline for clustering 16S data.',
     long_description=long_description,
@@ -105,7 +105,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'pipeline=cluster_16S.pipeline:main',
+            'cluster_16S=cluster_16S.pipeline:main',
             'write_launcher_job_file=cluster_16S.write_launcher_job_file:main'
         ],
     },
