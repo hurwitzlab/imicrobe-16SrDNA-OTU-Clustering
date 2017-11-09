@@ -26,8 +26,16 @@ Run the pipeline:
 
 ```
 $ cluster_16S \
-  --input-glob <input file glob> \
-  --output-dir <path for output directory>
+  --input-dir <input file glob> \
+  --work-dir <directory for intermediate and final output> \
+  --cutadapt-min-length 100 \
+  --pear-min-overlap 200\
+  --pear-max-assembly-length 270 \
+  --pear-min-assembly-length 220 \
+  --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
+  --vsearch-filter-maxee 1 \
+  --vsearch-filter-trunclen 245 \
+  --vsearch-derep-minuniquesize 3
 ```
 
 ## Build and Run as a Singularity container
@@ -48,6 +56,14 @@ Run the pipeline:
 
 ```
 $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
-  --input-glob <input file glob> \
-  --output-dir <path for output directory>
+  --input-dir <input file glob> \
+  --work-dir <directory for intermediate and final output> \
+  --cutadapt-min-length 100 \
+  --pear-min-overlap 200\
+  --pear-max-assembly-length 270 \
+  --pear-min-assembly-length 220 \
+  --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
+  --vsearch-filter-maxee 1 \
+  --vsearch-filter-trunclen 245 \
+  --vsearch-derep-minuniquesize 3
 ```
