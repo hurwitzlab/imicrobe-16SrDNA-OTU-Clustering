@@ -7,7 +7,7 @@ From: jkhurwitzlab/base:base
     export PEAR=/app/pear
     export VSEARCH=/app/vsearch/bin/vsearch
     export USEARCH=/app/usearch/usearch
-    pipeline $@
+    cluster_16S $@
 
 %setup
     mkdir "$SINGULARITY_ROOTFS/imicrobe-16SrDNA-OTU-Clustering"
