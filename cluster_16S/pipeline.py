@@ -560,7 +560,9 @@ class Pipeline:
                     self.vsearch_executable_fp,
                     '--fastq_filter', input_fp,
                     '--fastaout', fasta_fp
-                ])
+                    ],
+                    log_file=os.path.join(output_dir, 'log')
+                )
 
                 otu_table_fp = os.path.join(
                     output_dir,
