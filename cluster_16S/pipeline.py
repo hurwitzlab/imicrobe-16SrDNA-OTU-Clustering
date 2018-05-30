@@ -509,7 +509,8 @@ class Pipeline:
                         repl='.uchime.fasta'))
 
                 log.info('starting chimera detection on file "%s"', input_fp)
-
+                
+                '''
                 run_cmd([
                         self.usearch_executable_fp,
                         '-uchime2_ref', input_fp,
@@ -523,19 +524,17 @@ class Pipeline:
                     log_file=os.path.join(output_dir, 'log')
                 )
                 '''
+
                 run_cmd([
                         self.vsearch_executable_fp,
                         '-uchime_ref', input_fp,
                         '-db', self.uchime_ref_db_fp,
                         '-uchimeout', uchimeout_fp,
-                        '-mode', 'balanced',
-                        '-strand', 'plus',
-                        '-notmatched', notmatched_fp,
+                        '-nonchimeras', notmatched_fp,
                         '-threads', str(self.core_count)
                     ],
                     log_file = os.path.join(output_dir, 'log')
                 )
-                '''
 
         self.complete_step(log, output_dir)
         return output_dir
