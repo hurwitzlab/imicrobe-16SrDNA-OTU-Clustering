@@ -3,7 +3,6 @@ From: jkhurwitzlab/base:base
 
 %runscript
 
-    export CUTADAPT=cutadapt3
     export PEAR=/app/pear
     export VSEARCH=/app/vsearch/bin/vsearch
     export USEARCH=/app/usearch/usearch
@@ -30,10 +29,6 @@ From: jkhurwitzlab/base:base
    unzip fastqc_v0.11.5.zip
    rm fastqc_v0.11.5.zip
    chmod a+x FastQC/fastqc
-
-   # having trouble installing cutadapt with pip3 but this works
-   # executable is called "cutadapt3"
-   apt install -y python3-cutadapt
 
    /usr/bin/pip3 install --upgrade pip
    /usr/bin/pip3 install numpy

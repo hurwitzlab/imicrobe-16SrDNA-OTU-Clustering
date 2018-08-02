@@ -51,13 +51,16 @@ def get_args():
 
     arg_parser.add_argument('--pear-min-overlap', required=True, type=int,
                             help='-v/--min-overlap for pear')
+    
     arg_parser.add_argument('--pear-max-assembly-length', required=True, type=int,
                             help='-m/--max-assembly-length for pear')
+
     arg_parser.add_argument('--pear-min-assembly-length', required=True, type=int,
                             help='-m/--min-assembly-length for pear')
 
     arg_parser.add_argument('--vsearch-filter-maxee', required=True, type=int,
                             help='fastq_maxee for vsearch')
+    
     arg_parser.add_argument('--vsearch-filter-trunclen', required=True, type=int,
                             help='fastq_trunclen for vsearch')
 
@@ -99,7 +102,7 @@ class Pipeline:
 
         self.uchime_ref_db_fp = uchime_ref_db_fp
 
-        self.cutadapt_executable_fp = os.environ.get('CUTADAPT', default='cutadapt')
+        #self.cutadapt_executable_fp = os.environ.get('CUTADAPT', default='cutadapt')
         self.pear_executable_fp = os.environ.get('PEAR', default='pear')
         self.usearch_executable_fp = os.environ.get('USEARCH', default='usearch')
         self.vsearch_executable_fp = os.environ.get('VSEARCH', default='vsearch')
@@ -107,14 +110,14 @@ class Pipeline:
     def run(self, input_dir):
         output_dir_list = list()
         output_dir_list.append(self.step_01_copy_and_compress(input_dir=input_dir))
-        output_dir_list.append(self.step_02_remove_primers(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_03_merge_forward_reverse_reads_with_pear(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_04_qc_reads_with_vsearch(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_05_combine_runs(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_06_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_07_cluster_97_percent(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_08_reference_based_chimera_detection(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_09_create_otu_table(input_dir=output_dir_list[-1]))
+        #output_dir_list.append(self.step_02_remove_primers(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_02_merge_forward_reverse_reads_with_pear(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_03_qc_reads_with_vsearch(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_04_combine_runs(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_05_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_06_cluster_97_percent(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_07_reference_based_chimera_detection(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_08_create_otu_table(input_dir=output_dir_list[-1]))
 
         return output_dir_list
 
@@ -199,7 +202,8 @@ class Pipeline:
 
         self.complete_step(log, output_dir)
         return output_dir
-
+    
+    """
     def step_02_remove_primers(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
@@ -242,6 +246,8 @@ class Pipeline:
 
                 self.complete_step(log, output_dir)
         return output_dir
+    """    
+
 
     def step_03_merge_forward_reverse_reads_with_vsearch(self, input_dir):
         log, output_dir = self.initialize_step()
@@ -295,7 +301,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_03_merge_forward_reverse_reads_with_pear(self, input_dir):
+    def step_02_merge_forward_reverse_reads_with_pear(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -341,7 +347,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_04_qc_reads_with_vsearch(self, input_dir):
+    def step_03_qc_reads_with_vsearch(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -375,7 +381,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_05_combine_runs(self, input_dir):
+    def step_04_combine_runs(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -398,7 +404,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_06_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
+    def step_05_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -440,7 +446,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_07_cluster_97_percent(self, input_dir):
+    def step_06_cluster_97_percent(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -487,7 +493,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_08_reference_based_chimera_detection(self, input_dir):
+    def step_07_reference_based_chimera_detection(self, input_dir):
         log, output_dir = self.initialize_step()
         if len([entry for entry in os.scandir(output_dir) if not entry.name.startswith('.')]) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -539,7 +545,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_09_create_otu_table(self, input_dir):
+    def step_08_create_otu_table(self, input_dir):
         log, output_dir = self.initialize_step()
         if len([entry for entry in os.scandir(output_dir) if not entry.name.startswith('.')]) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
