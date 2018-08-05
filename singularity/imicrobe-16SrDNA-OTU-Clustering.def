@@ -3,6 +3,7 @@ From: jkhurwitzlab/base:base
 
 %runscript
 
+    export CUTADAPT=cutadapt3
     export PEAR=/app/pear
     export VSEARCH=/app/vsearch/bin/vsearch
     export USEARCH=/app/usearch/usearch
