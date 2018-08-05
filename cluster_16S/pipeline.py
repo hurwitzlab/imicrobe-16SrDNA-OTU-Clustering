@@ -111,7 +111,7 @@ class Pipeline:
         output_dir_list = list()
         output_dir_list.append(self.step_01_copy_and_compress(input_dir=input_dir))
         if self.cutadapt_min_length != -1:
-            output_dir_list.append(self.step_01-5_remove_primers(input_dir=output_dir_list[-1]))
+            output_dir_list.append(self.step_01_5_remove_primers(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_02_merge_forward_reverse_reads_with_pear(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_03_qc_reads_with_vsearch(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_04_combine_runs(input_dir=output_dir_list[-1]))
@@ -205,7 +205,7 @@ class Pipeline:
         return output_dir
     
     
-    def step_01-5_remove_primers(self, input_dir):
+    def step_01_5_remove_primers(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
