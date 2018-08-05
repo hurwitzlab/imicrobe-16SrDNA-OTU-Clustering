@@ -15,9 +15,9 @@ import re
 import shutil
 import sys
 
-from cluster_16S.pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
+from pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
     gzip_files, ungzip_files, run_cmd, PipelineException
-from cluster_16S.fasta_qual_to_fastq import fasta_qual_to_fastq
+from fasta_qual_to_fastq import fasta_qual_to_fastq
 
 
 def main():
