@@ -46,8 +46,8 @@ def get_args():
     arg_parser.add_argument('--uchime-ref-db-fp', default='/16SrDNA/pr2/pr2_gb203_version_4.5.fasta',
                             help='database for vsearch --uchime_ref')
 
-    arg_parser.add_argument('--cutadapt-min-length', required=True, type=int,
-                            help='min_length for cutadapt')
+    arg_parser.add_argument('--cutadapt-min-length', required=True, type=int, default=-1,
+                            help='min_length for cutadapt, filling this in indicates that there are primers/adadpters to be removed')
 
     arg_parser.add_argument('--pear-min-overlap', required=True, type=int,
                             help='-v/--min-overlap for pear')
@@ -102,7 +102,7 @@ class Pipeline:
 
         self.uchime_ref_db_fp = uchime_ref_db_fp
 
-        #self.cutadapt_executable_fp = os.environ.get('CUTADAPT', default='cutadapt')
+        self.cutadapt_executable_fp = os.environ.get('CUTADAPT', default='cutadapt')
         self.pear_executable_fp = os.environ.get('PEAR', default='pear')
         self.usearch_executable_fp = os.environ.get('USEARCH', default='usearch')
         self.vsearch_executable_fp = os.environ.get('VSEARCH', default='vsearch')
@@ -110,7 +110,8 @@ class Pipeline:
     def run(self, input_dir):
         output_dir_list = list()
         output_dir_list.append(self.step_01_copy_and_compress(input_dir=input_dir))
-        #output_dir_list.append(self.step_02_remove_primers(input_dir=output_dir_list[-1]))
+        if self.cutadapt_min_length != -1:
+            output_dir_list.append(self.step_01.5_remove_primers(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_02_merge_forward_reverse_reads_with_pear(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_03_qc_reads_with_vsearch(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_04_combine_runs(input_dir=output_dir_list[-1]))
@@ -203,8 +204,8 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
     
-    """
-    def step_02_remove_primers(self, input_dir):
+    
+    def step_01.5_remove_primers(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -246,9 +247,9 @@ class Pipeline:
 
                 self.complete_step(log, output_dir)
         return output_dir
-    """    
+        
 
-
+    """
     def step_03_merge_forward_reverse_reads_with_vsearch(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
@@ -300,6 +301,8 @@ class Pipeline:
 
         self.complete_step(log, output_dir)
         return output_dir
+    """    
+
 
     def step_02_merge_forward_reverse_reads_with_pear(self, input_dir):
         log, output_dir = self.initialize_step()
