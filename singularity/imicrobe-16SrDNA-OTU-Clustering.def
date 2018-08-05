@@ -6,7 +6,7 @@ From: jkhurwitzlab/base:base
     export PEAR=/app/pear
     export VSEARCH=/app/vsearch/bin/vsearch
     export USEARCH=/app/usearch/usearch
-    pipeline $@
+    python pipeline.py $@
 
 %setup
     mkdir "$SINGULARITY_ROOTFS/imicrobe-16SrDNA-OTU-Clustering"
@@ -31,9 +31,10 @@ From: jkhurwitzlab/base:base
    chmod a+x FastQC/fastqc
 
    /usr/bin/pip3 install --upgrade pip
-   /usr/bin/pip3 install numpy
-
-   /usr/bin/pip3 install /imicrobe-16SrDNA-OTU-Clustering[dev,test]
+   #/usr/bin/pip3 install numpy
+   
+   cd $APP_DIR
+   git clone https://github.com/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering.git
 
    # build vsearch from source and install to /app/vsearch/bin/vsearch
    cd $APP_DIR
@@ -58,9 +59,10 @@ From: jkhurwitzlab/base:base
    mkdir /home1
    mkdir /scratch
    mkdir /work
+   mkdir /rsgrps
 
 %environment
-   PATH=/app:/app/FastQC:/app/vsearch/bin:$PATH
+   PATH=/app:/app/FastQC:/app/vsearch/bin:/app/imicrobe-16SrDNA-OTU-Clustering/cluster_16S:$PATH
 
 %test
    echo "PATH=${PATH}"
