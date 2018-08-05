@@ -7,8 +7,7 @@ From: jkhurwitzlab/base:base
     export PEAR=/app/pear
     export VSEARCH=/app/vsearch/bin/vsearch
     export USEARCH=/app/usearch/usearch
-    export python=/usr/bin/python3
-    python pipeline.py $@
+    /usr/bin/python3 /app/imicrobe-16SrDNA-OTU-Clustering/cluster_16S/pipeline.py $@
 
 %setup
     mkdir "$SINGULARITY_ROOTFS/imicrobe-16SrDNA-OTU-Clustering"
@@ -80,3 +79,4 @@ From: jkhurwitzlab/base:base
    echo "`/app/pear --version`"
    echo "`/app/usearch --version`"
    echo "`/app/vsearch/bin/vsearch --version`"
+   echo "`/usr/bin/python3 --version`"
