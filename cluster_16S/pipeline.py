@@ -46,7 +46,7 @@ def get_args():
     arg_parser.add_argument('--uchime-ref-db-fp', default='/16SrDNA/pr2/pr2_gb203_version_4.5.fasta',
                             help='database for vsearch --uchime_ref')
 
-    arg_parser.add_argument('--cutadapt-min-length', required=True, type=int, default=-1,
+    arg_parser.add_argument('--cutadapt-min-length', type=int, default=-1,
                             help='min_length for cutadapt, filling this in indicates that there are primers/adadpters to be removed')
 
     arg_parser.add_argument('--pear-min-overlap', required=True, type=int,
