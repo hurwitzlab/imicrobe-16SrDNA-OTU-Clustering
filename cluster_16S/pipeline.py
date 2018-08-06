@@ -609,7 +609,7 @@ class Pipeline:
                     log_file = os.path.join(output_dir, 'log')
                 )
 
-                # os.remove(fasta_fp)
+                os.remove(fasta_fp)
 
         self.complete_step(log, output_dir)
         return output_dir
