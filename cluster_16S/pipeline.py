@@ -30,24 +30,26 @@ def main():
 
 def get_args():
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('-i', '--input-dir', default='.',
+    arg_parser.add_argument('-i', '--input-dir', required=True,
                             help='path to the input directory')
-    arg_parser.add_argument('-w', '--work-dir', default='.',
+
+    arg_parser.add_argument('-w', '--work-dir', required=True,
                             help='path to the output directory')
 
     arg_parser.add_argument('-c', '--core-count', default=1, type=int,
                             help='number of cores to use')
 
     arg_parser.add_argument('--forward-primer', default='ATTAGAWACCCVNGTAGTCC',
-                            help='forward primer to be clipped')
-    arg_parser.add_argument('--reverse-primer', default='TTACCGCGGCKGCTGGCAC',
-                            help='reverse primer to be clipped')
+                            help='forward primer to be clipped by cutadapt')
 
-    arg_parser.add_argument('--uchime-ref-db-fp', default='/16SrDNA/pr2/pr2_gb203_version_4.5.fasta',
-                            help='database for vsearch --uchime_ref')
+    arg_parser.add_argument('--reverse-primer', default='TTACCGCGGCKGCTGGCAC',
+                            help='reverse primer to be clipped by cutadapt')
+
+    arg_parser.add_argument('--uchime-ref-db-fp', default='/app/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz',
+                            help='database for vsearch --uchime_ref (if using singularity image, will use built-in SILVA database if no arg given)')
 
     arg_parser.add_argument('--cutadapt-min-length', type=int, default=-1,
-                            help='min_length for cutadapt, filling this in indicates that there are primers/adadpters to be removed')
+                            help='min_length for cutadapt, filling this in indicates that there are primers/adadpters to be removed and cutadapt will be used')
 
     arg_parser.add_argument('--pear-min-overlap', required=True, type=int,
                             help='-v/--min-overlap for pear')
@@ -114,7 +116,7 @@ class Pipeline:
             output_dir_list.append(self.step_01_5_remove_primers(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_02_merge_forward_reverse_reads_with_pear(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_03_qc_reads_with_vsearch(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_04_combine_runs(input_dir=output_dir_list[-1]))
+        #output_dir_list.append(self.step_04_combine_runs(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_05_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_06_cluster_97_percent(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_07_reference_based_chimera_detection(input_dir=output_dir_list[-1]))
@@ -129,6 +131,7 @@ class Pipeline:
         return log, output_dir
 
     def complete_step(self, log, output_dir):
+        return
         output_dir_list = sorted(os.listdir(output_dir))
         if len(output_dir_list) == 0:
             raise PipelineException('ERROR: no output files in directory "{}"'.format(output_dir))
@@ -239,6 +242,7 @@ class Pipeline:
                         '-o', trimmed_forward_fastq_fp,
                         '-p', trimmed_reverse_fastq_fp,
                         '-m', str(self.cutadapt_min_length),
+                        '-j', str(self.core_count),
                         forward_fastq_fp,
                         reverse_fastq_fp
                     ],
@@ -384,6 +388,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
+    """
     def step_04_combine_runs(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
@@ -407,6 +412,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
+    """
     def step_05_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
@@ -554,7 +560,8 @@ class Pipeline:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             otus_fp, *_ = glob.glob(os.path.join(input_dir, '*rad3.uchime.fasta'))
-            input_fps = glob.glob(os.path.join(self.work_dir, 'step_03*', '*.assembled.fastq.gz'))
+            input_fps = glob.glob(os.path.join(self.work_dir, 'step_03*', '*.assembled*.fastq.gz'))
+            print("Here")
             for input_fp in input_fps:
                 fasta_fp = os.path.join(
                     output_dir,
@@ -562,7 +569,7 @@ class Pipeline:
                         string=os.path.basename(input_fp),
                         pattern='\.fastq\.gz',
                         repl='.fasta'))
-
+                print("In here")
                 log.info('convert fastq file\n\t%s\nto fasta file\n\t%s', input_fp, fasta_fp)
                 run_cmd([
                     self.vsearch_executable_fp,
