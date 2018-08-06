@@ -491,7 +491,7 @@ class Pipeline:
                         '-cluster_otus', input_fp,
                         '-otus', otu_output_fp,
                         '-relabel', 'OTU_',
-                        # '-sizeout',
+                        '-sizeout',
                         '-uparseout', uparse_output_fp
                     ],
                     log_file = os.path.join(output_dir, 'log')

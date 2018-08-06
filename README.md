@@ -15,6 +15,7 @@ There are three ways to run this pipeline.
 ## Install and Run as a Python 3.6+ Package
 
 The only requirement to run the pipeline as a Python 3.6+ package is a Python 3.6+ interpreter and `Git`. It is not required but is highly recommended to install the pipeline in a virtual environment.
+You will also need usearch (https://www.drive5.com/usearch/), vsearch (https://github.com/torognes/vsearch), pear (https://sco.h-its.org/exelixis/web/software/pear/), and cutadapt (http://cutadapt.readthedocs.io/en/stable/index.html) installed and in your path.
 First install `wheel` and `numpy`. The `wheel` package is not required but warnings will be issued by the installation process if it is not present. The `numpy` package must be in place for the rest of the installation to succeed. Finally install the pipeline with `pip`. For example:
 
 ```
@@ -29,7 +30,7 @@ $ cluster_16S \
   --input-dir <input file glob> \
   --work-dir <directory for intermediate and final output> \
   --cutadapt-min-length 100 \
-  --pear-min-overlap 200\
+  --pear-min-overlap 20 \
   --pear-max-assembly-length 270 \
   --pear-min-assembly-length 220 \
   --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
