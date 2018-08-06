@@ -491,6 +491,7 @@ class Pipeline:
                         '-cluster_otus', input_fp,
                         '-otus', otu_output_fp,
                         '-relabel', 'OTU_',
+                        '-sizein',
                         '-sizeout',
                         '-uparseout', uparse_output_fp
                     ],
