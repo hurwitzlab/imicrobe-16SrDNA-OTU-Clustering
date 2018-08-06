@@ -16,7 +16,7 @@ From: jkhurwitzlab/base:base
 %post
 
    apt update
-   apt install -y apt-utils git wget zip zlib1g-dev libbz2-dev build-essential autoconf automake libtool
+   apt install -y apt-utils git wget zip zlib1g-dev libbz2-dev build-essential autoconf automake libtool pigz
    apt install -y python3-dev python3-pip
    apt install -y openjdk-9-jre-headless
 
