@@ -120,7 +120,7 @@ class Pipeline:
         output_dir_list.append(self.step_05_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_06_cluster_97_percent(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_07_reference_based_chimera_detection(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_08_create_otu_table(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_08_map_raw_reads_to_nonchimera_otus(input_dir=output_dir_list[-1]))
 
         return output_dir_list
 
@@ -554,14 +554,13 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_08_create_otu_table(self, input_dir):
+    def step_08_map_raw_reads_to_nonchimera_otus(self, input_dir):
         log, output_dir = self.initialize_step()
         if len([entry for entry in os.scandir(output_dir) if not entry.name.startswith('.')]) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             otus_fp, *_ = glob.glob(os.path.join(input_dir, '*rad3.uchime.fasta'))
-            input_fps = glob.glob(os.path.join(self.work_dir, 'step_03*', '*.assembled*.fastq.gz'))
-            print("Here")
+            input_fps = glob.glob(os.path.join(self.work_dir, 'step_02*', '*.assembled.fastq.gz'))
             for input_fp in input_fps:
                 fasta_fp = os.path.join(
                     output_dir,
@@ -569,7 +568,6 @@ class Pipeline:
                         string=os.path.basename(input_fp),
                         pattern='\.fastq\.gz',
                         repl='.fasta'))
-                print("In here")
                 log.info('convert fastq file\n\t%s\nto fasta file\n\t%s', input_fp, fasta_fp)
                 run_cmd([
                     self.vsearch_executable_fp,
@@ -595,6 +593,7 @@ class Pipeline:
                         repl='.uchime.otutab.json'
                     )
                 )
+                
 
                 run_cmd([
                         self.vsearch_executable_fp,
