@@ -369,7 +369,7 @@ class Pipeline:
             if len(input_file_list) == 0:
                 raise PipelineException('found no assembled.fastq.gz files in directory "{}"'.format(input_dir))
             log.info('input file glob: "%s"', input_files_glob)
-            for assembled_fastq_fp in input_file_list):
+            for assembled_fastq_fp in input_file_list:
                 input_file_basename = os.path.basename(assembled_fastq_fp)
                 output_file_basename = re.sub(
                     string=input_file_basename,
