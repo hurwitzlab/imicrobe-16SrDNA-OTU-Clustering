@@ -3,7 +3,7 @@ From: jkhurwitzlab/base:base
 
 %runscript
 
-    export CUTADAPT=cutadapt3
+    export CUTADAPT=/usr/local/bin/cutadapt
     export PEAR=/app/pear
     export VSEARCH=/app/vsearch/bin/vsearch
     export USEARCH=/app/usearch
@@ -33,10 +33,9 @@ From: jkhurwitzlab/base:base
 
    # having trouble installing cutadapt with pip3 but this works
    # executable is called "cutadapt3"
-   apt install -y python3-cutadapt
-
    #/usr/bin/pip3 install --upgrade pip
    /usr/bin/pip3 install numpy
+   /usr/bin/pip3 install cutadapt
    
    /usr/bin/pip3 install /imicrobe-16SrDNA-OTU-Clustering[dev,test]
 
@@ -72,7 +71,7 @@ From: jkhurwitzlab/base:base
    echo "PATH=${PATH}"
 
    python3 --version
-   cutadapt3 --version
+   cutadapt --version
    /app/FastQC/fastqc --version
    # pear --version has exit code > 0
    echo "`/app/pear --version`"
