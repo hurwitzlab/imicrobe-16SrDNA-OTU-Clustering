@@ -365,8 +365,11 @@ class Pipeline:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             input_files_glob = os.path.join(input_dir, '*.assembled.fastq.gz')
+            input_file_list = glob.glob(input_files_glob)
+            if len(input_file_list) == 0:
+                raise PipelineException('found no assembled.fastq.gz files in directory "{}"'.format(input_dir))
             log.info('input file glob: "%s"', input_files_glob)
-            for assembled_fastq_fp in glob.glob(input_files_glob):
+            for assembled_fastq_fp in input_file_list:
                 input_file_basename = os.path.basename(assembled_fastq_fp)
                 output_file_basename = re.sub(
                     string=input_file_basename,
@@ -402,6 +405,8 @@ class Pipeline:
             input_files_glob = os.path.join(input_dir, '*run1*.assembled.*.fastq.gz')
             log.info('input file glob: "%s"', input_files_glob)
             run_fp_list = sorted(glob.glob(input_files_glob))
+            if len(run_fp_list) == 0:
+                raise PipelineException('found no run1*.assembled.fastq.gz files in directory "{}"'.format(input_dir))
             for run in run_fp_list:
                 sample_name = os.path.basename(run).split('_run1')[0]
                 trailing_name = os.path.basename(run).split('_run1')[1]
@@ -429,7 +434,8 @@ class Pipeline:
             input_files_glob = os.path.join(input_dir, '*.assembled.*.fastq.gz')
             log.info('input file glob: "%s"', input_files_glob)
             input_fp_list = sorted(glob.glob(input_files_glob))
-
+            if len(input_fp_list) == 0:
+                raise PipelineException('found no .assembled.fastq.gz files in directory "{}"'.format(input_dir))
             for input_fp in input_fp_list:
                 output_fp = os.path.join(
                     output_dir,
@@ -470,7 +476,8 @@ class Pipeline:
             # can usearch read gzipped files? no
             input_files_glob = os.path.join(input_dir, '*.fasta.gz')
             input_fp_list = sorted(glob.glob(input_files_glob))
-
+            if len(input_fp_list) == 0:
+                raise PipelineException('found no fasta.gz files in directory "{}"'.format(input_dir))
             for compressed_input_fp in input_fp_list:
 
                 input_fp, *_ = ungzip_files(compressed_input_fp, target_dir=output_dir)
@@ -515,6 +522,8 @@ class Pipeline:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             input_fps = glob.glob(os.path.join(input_dir, '*.fasta'))
+            if len(input_fps) == 0:
+                raise PipelineException('found no fasta files in directory "{}"'.format(input_dir))
             for input_fp in input_fps:
                 uchimeout_fp = os.path.join(
                     output_dir,
@@ -571,7 +580,8 @@ class Pipeline:
                 input_fps = self.concat_multiple_runs_for_step_07(self.work_dir, output_dir, log)
             else:
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_02*', '*.assembled.fastq.gz'))
-
+            if len(input_fps) == 0:
+                raise PipelineException('found no .assembled.fastq.gz files in directory "{}"'.format(os.path.join(self.work_dir, 'step_02')))
             for input_fp in input_fps:
                 fasta_fp = os.path.join(
                     output_dir,
