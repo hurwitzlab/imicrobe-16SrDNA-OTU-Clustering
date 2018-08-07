@@ -39,6 +39,9 @@ def get_args():
     arg_parser.add_argument('-c', '--core-count', default=1, type=int,
                             help='number of cores to use')
 
+    arg_parser.add_argument('-m', '--multiple-runs', action='store_true', default=False,
+                            help='indicates whether samples are split across multiple runs. If so, files must be named \"SAMPLENAME_run1.fastq\", \"SAMPLENAME_run2.fastq\", ...')
+
     arg_parser.add_argument('--forward-primer', default='ATTAGAWACCCVNGTAGTCC',
                             help='forward primer to be clipped by cutadapt')
 
@@ -77,6 +80,7 @@ class Pipeline:
     def __init__(self,
             work_dir,
             core_count,
+            multiple_runs,
             cutadapt_min_length,
             forward_primer, reverse_primer,
             pear_min_overlap, pear_max_assembly_length, pear_min_assembly_length,
@@ -88,7 +92,7 @@ class Pipeline:
 
         self.work_dir = work_dir
         self.core_count = core_count
-
+        self.multiple_runs = multiple_runs
         self.cutadapt_min_length = cutadapt_min_length
         self.forward_primer = forward_primer
         self.reverse_primer = reverse_primer
@@ -116,11 +120,12 @@ class Pipeline:
             output_dir_list.append(self.step_01_5_remove_primers(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_02_merge_forward_reverse_reads_with_pear(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_03_qc_reads_with_vsearch(input_dir=output_dir_list[-1]))
-        #output_dir_list.append(self.step_04_combine_runs(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_05_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_06_cluster_97_percent(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_07_reference_based_chimera_detection(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_08_create_otu_table(input_dir=output_dir_list[-1]))
+        if self.multiple_runs is True:
+            output_dir_list.append(self.step_03_5_combine_runs(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_04_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_05_cluster_97_percent(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_06_reference_based_chimera_detection(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_07_create_otu_table(input_dir=output_dir_list[-1]))
 
         return output_dir_list
 
@@ -388,32 +393,33 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    """
-    def step_04_combine_runs(self, input_dir):
+    def step_03_5_combine_runs(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
-            input_files_glob = os.path.join(input_dir, '*.assembled.*.fastq.gz')
+            input_files_glob = os.path.join(input_dir, '*run1*.assembled.*.fastq.gz')
             log.info('input file glob: "%s"', input_files_glob)
-            input_fp_list = sorted(glob.glob(input_files_glob))
-            log.info('combining files:\n\t%s', '\n\t'.join(input_fp_list))
-
-            output_file_name = get_combined_file_name(input_fp_list=input_fp_list)
-
-            log.info('combined file: "%s"', output_file_name)
-            output_fp = os.path.join(output_dir, output_file_name)
-            with gzip.open(output_fp, 'wt') as output_file:
-                for input_fp in input_fp_list:
-                    with gzip.open(input_fp, 'rt') as input_file:
-                        shutil.copyfileobj(fsrc=input_file, fdst=output_file)
-
+            run_fp_list = sorted(glob.glob(input_files_glob))
+            for run in run_fp_list:
+                sample_name = os.path.basename(run).split('_run')[0]
+                log.info('Sample name: "%s"', sample_name)
+                run_files_glob = os.path.join(input_dir, '%s*.assembled.*.fastq.gz' % sample_name)
+                run_files_list = sorted(glob.glob(run_files_glob)
+                log.info('Sample run file list: "%s"', run_files_list)
+                output_run_file = get_combined_file_name(input_fp_list=run_files_list)
+                output_fp = os.path.join(output_dir, output_run_file)
+                log.info('combined file: "%s"', output_fp)
+                with gzip.open(output_fp, 'wt') as output_file:
+                    for run_fp in run_files_list:
+                        with gzip.open(run_fp, 'rt') as input_file:
+                            shutil.copyfileobj(fsrc=input_file, fdst=output_file)
+                    
         self.complete_step(log, output_dir)
         return output_dir
 
-    """
-    def step_05_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
+    def step_04_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -455,7 +461,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_06_cluster_97_percent(self, input_dir):
+    def step_05_cluster_97_percent(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -502,7 +508,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_07_reference_based_chimera_detection(self, input_dir):
+    def step_06_reference_based_chimera_detection(self, input_dir):
         log, output_dir = self.initialize_step()
         if len([entry for entry in os.scandir(output_dir) if not entry.name.startswith('.')]) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
@@ -554,7 +560,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_08_create_otu_table(self, input_dir):
+    def step_07_create_otu_table(self, input_dir):
         log, output_dir = self.initialize_step()
         if len([entry for entry in os.scandir(output_dir) if not entry.name.startswith('.')]) > 0:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
