@@ -640,10 +640,10 @@ class Pipeline:
             sample_list = sorted(glob.glob(sample_glob))
             log.info('Sample list: "%s"', str(sample_list))
             output_file = os.path.join(output_dir, '%s_concat_runs.fastq.gz' % sample_name)
-            with open(output_file, 'w') as outfile:
+            with open(output_file, 'wb') as outfile:
                 for sample in sample_list:
-                    with open(sample, 'r') as infile:
-                           shutil.copyfileobj(infile, outfile) 
+                    with open(sample, 'rb') as infile:
+                        shutil.copyfileobj(infile, outfile) 
             input_fps.append(output_file)
         return input_fps
         
