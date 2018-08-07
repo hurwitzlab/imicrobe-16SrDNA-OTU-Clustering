@@ -403,8 +403,8 @@ class Pipeline:
             log.info('input file glob: "%s"', input_files_glob)
             run_fp_list = sorted(glob.glob(input_files_glob))
             for run in run_fp_list:
-                sample_name = os.path.basename(run).split('_run')[0]
-                trailing_name = os.path.basename(run).split('_run')[1]
+                sample_name = os.path.basename(run).split('_run1')[0]
+                trailing_name = os.path.basename(run).split('_run1')[1]
                 log.info('Sample name: "%s"', sample_name)
                 run_files_glob = os.path.join(input_dir, '%s*.assembled.*.fastq.gz' % sample_name)
                 run_files_list = sorted(glob.glob(run_files_glob))
