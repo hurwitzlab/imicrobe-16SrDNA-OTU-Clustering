@@ -404,11 +404,12 @@ class Pipeline:
             run_fp_list = sorted(glob.glob(input_files_glob))
             for run in run_fp_list:
                 sample_name = os.path.basename(run).split('_run')[0]
+                trailing_name = os.path.basename(run).split('_run')[1]
                 log.info('Sample name: "%s"', sample_name)
                 run_files_glob = os.path.join(input_dir, '%s*.assembled.*.fastq.gz' % sample_name)
                 run_files_list = sorted(glob.glob(run_files_glob))
                 log.info('Sample run file list: "%s"', run_files_list)
-                output_run_file = get_combined_file_name(input_fp_list=run_files_list)
+                output_run_file = '{}_combined{}'.format(sample_name, trailing_name)
                 output_fp = os.path.join(output_dir, output_run_file)
                 log.info('combined file: "%s"', output_fp)
                 with gzip.open(output_fp, 'wt') as output_file:
