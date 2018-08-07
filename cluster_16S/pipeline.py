@@ -567,7 +567,10 @@ class Pipeline:
             log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             otus_fp, *_ = glob.glob(os.path.join(input_dir, '*rad3.uchime.fasta'))
-            input_fps = glob.glob(os.path.join(self.work_dir, 'step_02*', '*.assembled.fastq.gz'))
+            if self.multiple_runs is True:
+                input_fps = self.concat_multiple_runs_for_step_07(self.work_dir, output_dir, log)
+            else:
+                input_fps = glob.glob(os.path.join(self.work_dir, 'step_02*', '*.assembled.fastq.gz'))
             for input_fp in input_fps:
                 fasta_fp = os.path.join(
                     output_dir,
@@ -617,9 +620,31 @@ class Pipeline:
                 )
 
                 os.remove(fasta_fp)
+                if self.multiple_runs is True:
+                    os.remove(input_fp)
 
         self.complete_step(log, output_dir)
         return output_dir
+
+    def concat_multiple_runs_for_step_07(work_dir, output_dir, log):
+        log.info('Concatenating raw reads from multiple runs')
+        input_glob = os.path.join(work_dir, 'step_02*', '*run1*.assembled*.fastq.gz*')
+        run1_fps = sorted(glob.glob(input_glob))    
+        input_fps = []
+        for run in run1_fps:
+            sample_name = os.path.basename(run).split('_run1')[0]
+            sample_glob = os.path.join(work_dir, 'step_02*', '*%s*.assembled*.fastq.gz*' % sample_name)
+            sample_list = sorted(glob(glob(sample_glob))
+            log.info('Sample list: "%s"', str(sample_list))
+            output_file = os.path.join(output_dir, '%s_concat_runs.fastq.gz' % sample_name)
+            with open(output_file, 'w') as outfile:
+                for sample in sample_list:
+                    with open(sample, 'r') as infile:
+                        for l in infile:
+                            outfile.write(l)
+            input_fps.append(output_file)
+        return input_fps
+        
 
 def get_combined_file_name(input_fp_list):
     if len(input_fp_list) == 0:
