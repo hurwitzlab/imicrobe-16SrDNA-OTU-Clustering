@@ -406,7 +406,7 @@ class Pipeline:
                 sample_name = os.path.basename(run).split('_run')[0]
                 log.info('Sample name: "%s"', sample_name)
                 run_files_glob = os.path.join(input_dir, '%s*.assembled.*.fastq.gz' % sample_name)
-                run_files_list = sorted(glob.glob(run_files_glob)
+                run_files_list = sorted(glob.glob(run_files_glob))
                 log.info('Sample run file list: "%s"', run_files_list)
                 output_run_file = get_combined_file_name(input_fp_list=run_files_list)
                 output_fp = os.path.join(output_dir, output_run_file)
