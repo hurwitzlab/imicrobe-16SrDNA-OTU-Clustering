@@ -589,7 +589,7 @@ class Pipeline:
                     ],
                     log_file=os.path.join(output_dir, 'log')
                 )
-
+                return "hi"
                 otu_table_fp = os.path.join(
                     output_dir,
                     re.sub(
