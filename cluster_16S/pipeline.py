@@ -634,7 +634,7 @@ class Pipeline:
         for run in run1_fps:
             sample_name = os.path.basename(run).split('_run1')[0]
             sample_glob = os.path.join(work_dir, 'step_02*', '*%s*.assembled*.fastq.gz*' % sample_name)
-            sample_list = sorted(glob(glob(sample_glob))
+            sample_list = sorted(glob.glob(sample_glob))
             log.info('Sample list: "%s"', str(sample_list))
             output_file = os.path.join(output_dir, '%s_concat_runs.fastq.gz' % sample_name)
             with open(output_file, 'w') as outfile:
