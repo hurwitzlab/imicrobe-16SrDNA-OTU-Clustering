@@ -568,12 +568,10 @@ class Pipeline:
         else:
             otus_fp, *_ = glob.glob(os.path.join(input_dir, '*rad3.uchime.fasta'))
             if self.multiple_runs is True:
-                print('log = {}'.format(log))
-                print('self.workdir = {}'.format(self.work_dir))
-                print('output_dir = {}'.format(output_dir))
                 input_fps = self.concat_multiple_runs_for_step_07(self.work_dir, output_dir, log)
             else:
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_02*', '*.assembled.fastq.gz'))
+
             for input_fp in input_fps:
                 fasta_fp = os.path.join(
                     output_dir,
@@ -589,7 +587,6 @@ class Pipeline:
                     ],
                     log_file=os.path.join(output_dir, 'log')
                 )
-                return "hi"
                 otu_table_fp = os.path.join(
                     output_dir,
                     re.sub(
@@ -639,7 +636,7 @@ class Pipeline:
             sample_glob = os.path.join(work_dir, 'step_02*', '*%s*.assembled*.fastq.gz*' % sample_name)
             sample_list = sorted(glob.glob(sample_glob))
             log.info('Sample list: "%s"', str(sample_list))
-            output_file = os.path.join(output_dir, '%s_concat_runs.fastq.gz' % sample_name)
+            output_file = os.path.join(output_dir, '%s_concat_runs.assembled.fastq.gz' % sample_name)
             with open(output_file, 'wb') as outfile:
                 for sample in sample_list:
                     with open(sample, 'rb') as infile:
