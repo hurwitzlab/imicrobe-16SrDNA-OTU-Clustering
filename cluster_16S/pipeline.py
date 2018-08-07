@@ -643,8 +643,7 @@ class Pipeline:
             with open(output_file, 'w') as outfile:
                 for sample in sample_list:
                     with open(sample, 'r') as infile:
-                        for l in infile:
-                            outfile.write(l)
+                           shutil.copyfileobj(infile, outfile) 
             input_fps.append(output_file)
         return input_fps
         
