@@ -6,8 +6,8 @@ From: jkhurwitzlab/base:base
     export CUTADAPT=cutadapt3
     export PEAR=/app/pear
     export VSEARCH=/app/vsearch/bin/vsearch
-    export USEARCH=/app/usearch/usearch
-    /usr/bin/python3 /app/imicrobe-16SrDNA-OTU-Clustering/cluster_16S/pipeline.py $@
+    export USEARCH=/app/usearch
+    cluster_16S $@
 
 %setup
     mkdir "$SINGULARITY_ROOTFS/imicrobe-16SrDNA-OTU-Clustering"
@@ -35,11 +35,10 @@ From: jkhurwitzlab/base:base
    # executable is called "cutadapt3"
    apt install -y python3-cutadapt
 
-   /usr/bin/pip3 install --upgrade pip
-   #/usr/bin/pip3 install numpy
+   #/usr/bin/pip3 install --upgrade pip
+   /usr/bin/pip3 install numpy
    
-   cd $APP_DIR
-   git clone https://github.com/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering.git
+   /usr/bin/pip3 install /imicrobe-16SrDNA-OTU-Clustering[dev,test]
 
    # build vsearch from source and install to /app/vsearch/bin/vsearch
    cd $APP_DIR
