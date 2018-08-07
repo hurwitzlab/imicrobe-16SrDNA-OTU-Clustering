@@ -630,7 +630,7 @@ class Pipeline:
         return output_dir
 
     def concat_multiple_runs_for_step_07(self, work_dir, output_dir, log):
-        #log.info('Concatenating raw reads from multiple runs')
+        log.info('Concatenating raw reads from multiple runs')
         input_glob = os.path.join(work_dir, 'step_02*', '*run1*.assembled*.fastq.gz*')
         run1_fps = sorted(glob.glob(input_glob))    
         input_fps = []
@@ -638,7 +638,7 @@ class Pipeline:
             sample_name = os.path.basename(run).split('_run1')[0]
             sample_glob = os.path.join(work_dir, 'step_02*', '*%s*.assembled*.fastq.gz*' % sample_name)
             sample_list = sorted(glob.glob(sample_glob))
-            #log.info('Sample list: "%s"', str(sample_list))
+            log.info('Sample list: "%s"', str(sample_list))
             output_file = os.path.join(output_dir, '%s_concat_runs.fastq.gz' % sample_name)
             with open(output_file, 'w') as outfile:
                 for sample in sample_list:
