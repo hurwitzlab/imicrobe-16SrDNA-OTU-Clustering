@@ -74,7 +74,7 @@
       "id": "forward_primer",
       "value": {
         "default": "ATTAGAWACCCVNGTAGTCC",
-        "required": true,
+        "required": false,
         "type": "string",
         "visible": true
       },
@@ -91,7 +91,7 @@
       "id": "reverse_primer",
       "value": {
         "default": "TTACCGCGGCKGCTGGCAC",
-        "required": true,
+        "required": false,
         "type": "string",
         "visible": true
       },
@@ -107,8 +107,8 @@
     {
       "id": "cutadapt_minimum_length",
       "value": {
-        "default": 100,
-        "required": true,
+        "default": -1,
+        "required": false,
         "type": "number",
         "visible": true
       },
@@ -118,6 +118,108 @@
         "argument": "--cutadapt-min-length",
         "description": "minimum length for cutadapt",
         "label": "cutadapt minimum length",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "core_count",
+      "value": {
+        "default": 1,
+        "required": false,
+        "type": "number",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--core-count",
+        "description": "number of cores to run on",
+        "label": "number of cores",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "multiple_runs",
+      "value": {
+        "default": false,
+        "required": false,
+        "type": "boolean",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--multiple-runs",
+        "description": "Indicates that files in the INPUT_DIR are split into multiple runs",
+        "label": "multiple runs",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "run_help",
+      "value": {
+        "default": false,
+        "required": false,
+        "type": "boolean",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--help",
+        "description": "Prints advanced usage",
+        "label": "help",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "pear_min_overlap",
+      "value": {
+        "default": 20,
+        "required": true,
+        "type": "number",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--pear-min-overlap",
+        "description": "-v/--min-overlap for pear",
+        "label": "min overlap",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "pear_max_assembly_length",
+      "value": {
+        "default": 270,
+        "required": true,
+        "type": "number",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--pear-max-assembly-length",
+        "description": "-m/--max-assembly-length for pear",
+        "label": "max assembly length",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "pear_min_assembly_length",
+      "value": {
+        "default": 220,
+        "required": true,
+        "type": "number",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--pear-min-assembly-length",
+        "description": "-m/--min-assembly-length for pear",
+        "label": "min assembly length",
         "showArgument": true
       }
     },
@@ -152,6 +254,23 @@
         "argument": "--vsearch-filter-trunclen",
         "description": "truncate length",
         "label": "vsearch truncation length",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "vsearch_derep_minuniquesize",
+      "value": {
+        "default": 3,
+        "required": true,
+        "type": "number",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--vsearch-derep-minuniquesize",
+        "description": "minimum unique size for vsearch -derep_fulllength",
+        "label": "vsearch derep min unique size",
         "showArgument": true
       }
     }
