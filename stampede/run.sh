@@ -40,18 +40,19 @@ function USAGE() {
 }
 INPUT_DIR=$1
 OUTPUT_DIR=$2
-core_count=$3
-cutadapt_min_length=$4
-pear_min_overlap=$5
-pear_max_assembly_length=$6
-pear_min_assembly_length=$7
-vsearch_filter_maxee=$8
-vsearch_filter_trunclen=$9
-vsearch_derep_minuniquesize=$10
-forward_primer=$11
-reverse_primer=$12
-multiple_runs=$13
-run_help=$14
+UCHIME_REF_DB=$3
+core_count=$4
+cutadapt_min_length=$5
+pear_min_overlap=$6
+pear_max_assembly_length=$7
+pear_min_assembly_length=$8
+vsearch_filter_maxee=$9
+vsearch_filter_trunclen=$10
+vsearch_derep_minuniquesize=$11
+forward_primer=$12
+reverse_primer=$13
+multiple_runs=$14
+run_help=$15
 
 if [ $run_help = true ]; then
     ADVANCED_USAGE
@@ -91,6 +92,7 @@ if [ $multiple_runs = true ]; then
     time singularity run imicrobe-16SrDNA-OTU-Clustering.img \
       --input-dir ${INPUT_DIR} \
       --work-dir ${OUTPUT_DIR} \
+      --uchime-ref-db-fp ${UCHIME_REF_DB} \
       --core-count ${core_count} \
       --cutadapt-min-length ${cutadapt_min_length} \
       --pear-min-overlap ${pear_min_overlap} \
@@ -106,6 +108,7 @@ else
     time singularity run imicrobe-16SrDNA-OTU-Clustering.img \
       --input-dir ${INPUT_DIR} \
       --work-dir ${OUTPUT_DIR} \
+      --uchime-ref-db-fp ${UCHIME_REF_DB} \
       --core-count ${core_count} \
       --cutadapt-min-length ${cutadapt_min_length} \
       --pear-min-overlap ${pear_min_overlap} \

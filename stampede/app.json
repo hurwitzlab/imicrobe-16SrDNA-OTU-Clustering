@@ -67,6 +67,25 @@
         "argument": "",
         "showArgument": false
       }
+    },
+    {
+      "id": "UCHIME_REF_DB",
+      "value": {
+        "default": "/app/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz",
+        "required": false,
+        "visible": true
+      },
+      "semantics": {
+        "fileTypes": [
+          "raw-0"
+        ]
+      },
+      "details": {
+        "description": "Database for chimera detection",
+        "label": "Database",
+        "argument": "",
+        "showArgument": false
+      }
     }
   ],
   "parameters": [
