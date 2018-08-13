@@ -162,7 +162,7 @@
       "value": {
         "default": false,
         "required": false,
-        "type": "boolean",
+        "type": "bool",
         "visible": true
       },
       "semantics": {
