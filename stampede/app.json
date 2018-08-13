@@ -6,7 +6,7 @@
   "defaultMaxRunTime": "12:00:00",
   "defaultNodeCount": 1,
   "defaultQueue": "normal",
-  "deploymentPath": "mattmiller899/imicrobe-16SrDNA-OTU-Clustering-0.0.2/stampede",
+  "deploymentPath": "mattmiller899/applications/imicrobe-16SrDNA-OTU-Clustering-0.0.2/stampede",
   "deploymentSystem": "data.iplantcollaborative.org",
   "executionSystem": "tacc-stampede2-mattmill",
   "executionType": "HPC",
