@@ -14,7 +14,7 @@
   "label": "iMicrobe 16SrDNA-OTU-Clustering",
   "longDescription": "iMicrobe 16S rDNA OTU Clustering",
   "modules": [],
-  "name": "imicrobe-16SrDNA-OTU-Clustering",
+  "name": "mattmiller899-imicrobe-16SrDNA-OTU-Clustering",
   "ontology": [
     "http://sswapmeet.sswap.info/agave/apps/Application"
   ],
