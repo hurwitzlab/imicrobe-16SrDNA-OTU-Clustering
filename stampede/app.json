@@ -144,7 +144,7 @@
       "id": "multiple_runs",
       "value": {
         "default": false,
-        "required": true,
+        "required": false,
         "type": "flag",
         "visible": true
       },
