@@ -99,6 +99,7 @@ def check_args(args,
         exit()
     if work_dir == "":
         args.work_dir = "{}/output".format(input_dir)
+        os.mkdir(args.work_dir)
     if core_count < 1:
         print("Bad number of cores")
         exit()
