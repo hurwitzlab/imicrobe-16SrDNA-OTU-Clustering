@@ -76,7 +76,7 @@ def get_args():
     return args
 
 def check_args(args,
-            input_dir
+            input_dir,
             work_dir,
             core_count,
             multiple_runs,
