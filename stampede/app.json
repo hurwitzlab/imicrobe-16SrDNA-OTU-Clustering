@@ -33,39 +33,21 @@
     {
       "id": "INPUT_DIR",
       "value": {
-        "default": "this is needed",
+        "default": "",
         "required": true,
         "visible": true
       },
       "semantics": {
         "fileTypes": [
           "raw-0"
-        ]
+        ],
+        "maxCardinality":1
       },
       "details": {
         "description": "Directory of forward and reverse reads",
-        "label": "Input directory (forward AND reverse reads)",
-        "argument": "",
-        "showArgument": false
-      }
-    },
-    {
-      "id": "OUTPUT_DIR",
-      "value": {
-        "default": "this is needed",
-        "required": true,
-        "visible": true
-      },
-      "semantics": {
-        "fileTypes": [
-          "raw-0"
-        ]
-      },
-      "details": {
-        "description": "Directory for output",
-        "label": "Output directory",
-        "argument": "",
-        "showArgument": false
+        "label": "Input directory",
+        "argument": "-i ",
+        "showArgument": true
       }
     },
     {
@@ -78,13 +60,14 @@
       "semantics": {
         "fileTypes": [
           "raw-0"
-        ]
+        ],
+        "maxCardinality":1
       },
       "details": {
-        "description": "Database for chimera detection",
-        "label": "Database",
-        "argument": "",
-        "showArgument": false
+        "description": "The file path \"/app/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz\" is the default database. If you would like to use a different database you may do so.",
+        "label": "Database for chimera detection",
+        "argument": "--uchime-ref-db-fp ",
+        "showArgument": true
       }
     }
   ],
@@ -100,9 +83,9 @@
       "semantics": {
       },
       "details": {
-        "argument": "--forward-primer",
-        "description": "forward primer",
-        "label": "forward primer",
+        "argument": "--forward-primer ",
+        "description": "",
+        "label": "Forward Primer",
         "showArgument": true
       }
     },
@@ -117,9 +100,9 @@
       "semantics": {
       },
       "details": {
-        "argument": "--reverse-primer",
-        "description": "reverse primer",
-        "label": "reverse primer",
+        "argument": "--reverse-primer ",
+        "description": "",
+        "label": "Reverse Primer",
         "showArgument": true
       }
     },
@@ -134,9 +117,9 @@
       "semantics": {
       },
       "details": {
-        "argument": "--cutadapt-min-length",
-        "description": "minimum length for cutadapt",
-        "label": "cutadapt minimum length",
+        "argument": "--cutadapt-min-length ",
+        "description": "",
+        "label": "Cutadapt Minimum Length",
         "showArgument": true
       }
     },
@@ -151,7 +134,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--core-count",
+        "argument": "--core-count ",
         "description": "number of cores to run on",
         "label": "number of cores",
         "showArgument": true
@@ -161,33 +144,16 @@
       "id": "multiple_runs",
       "value": {
         "default": false,
-        "required": false,
-        "type": "bool",
+        "required": true,
+        "type": "flag",
         "visible": true
       },
       "semantics": {
       },
       "details": {
-        "argument": "--multiple-runs",
+        "argument": "--multiple-runs ",
         "description": "Indicates that files in the INPUT_DIR are split into multiple runs",
         "label": "multiple runs",
-        "showArgument": true
-      }
-    },
-    {
-      "id": "run_help",
-      "value": {
-        "default": false,
-        "required": false,
-        "type": "bool",
-        "visible": true
-      },
-      "semantics": {
-      },
-      "details": {
-        "argument": "--help",
-        "description": "Prints advanced usage",
-        "label": "help",
         "showArgument": true
       }
     },
@@ -202,7 +168,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--pear-min-overlap",
+        "argument": "--pear-min-overlap ",
         "description": "-v/--min-overlap for pear",
         "label": "min overlap",
         "showArgument": true
@@ -219,7 +185,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--pear-max-assembly-length",
+        "argument": "--pear-max-assembly-length ",
         "description": "-m/--max-assembly-length for pear",
         "label": "max assembly length",
         "showArgument": true
@@ -236,7 +202,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--pear-min-assembly-length",
+        "argument": "--pear-min-assembly-length ",
         "description": "-m/--min-assembly-length for pear",
         "label": "min assembly length",
         "showArgument": true
@@ -253,7 +219,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--vsearch-filter-maxee",
+        "argument": "--vsearch-filter-maxee ",
         "description": "max quality score",
         "label": "maximum quality score",
         "showArgument": true
@@ -270,7 +236,7 @@
       "semantics": {
       },
       "details": {
-        "argument": "--vsearch-filter-trunclen",
+        "argument": "--vsearch-filter-trunclen ",
         "description": "truncate length",
         "label": "vsearch truncation length",
         "showArgument": true
@@ -284,10 +250,8 @@
         "type": "number",
         "visible": true
       },
-      "semantics": {
-      },
       "details": {
-        "argument": "--vsearch-derep-minuniquesize",
+        "argument": "--vsearch-derep-minuniquesize ",
         "description": "minimum unique size for vsearch -derep_fulllength",
         "label": "vsearch derep min unique size",
         "showArgument": true

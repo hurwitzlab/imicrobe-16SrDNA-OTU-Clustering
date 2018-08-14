@@ -23,7 +23,7 @@ from cluster_16S.fasta_qual_to_fastq import fasta_qual_to_fastq
 def main():
     logging.basicConfig(level=logging.INFO)
     args = get_args()
-
+    args = check_args(args, **args.__dict__)
     Pipeline(**args.__dict__).run(input_dir=args.input_dir)
     return 0
 
@@ -33,7 +33,7 @@ def get_args():
     arg_parser.add_argument('-i', '--input-dir', required=True,
                             help='path to the input directory')
 
-    arg_parser.add_argument('-w', '--work-dir', required=True,
+    arg_parser.add_argument('-w', '--work-dir', required=False, default="",
                             help='path to the output directory')
 
     arg_parser.add_argument('-c', '--core-count', default=1, type=int,
@@ -75,6 +75,62 @@ def get_args():
     args = arg_parser.parse_args()
     return args
 
+def check_args(args,
+            input_dir
+            work_dir,
+            core_count,
+            multiple_runs,
+            cutadapt_min_length,
+            forward_primer, reverse_primer,
+            pear_min_overlap, pear_max_assembly_length, pear_min_assembly_length,
+            vsearch_filter_maxee, vsearch_filter_trunclen,
+            vsearch_derep_minuniquesize,
+            uchime_ref_db_fp,
+            **kwargs  # allows some command line arguments to be ignored
+    ):
+    if not os.path.isdir(input_dir):
+        print("{} is not a directory".format(input_dir))
+        exit()
+    if len(os.listdir(input_dir)) == 0:
+        print("{} is empty".format(input_dir))
+        exit()
+    if len(os.listdir(input_dir)) % 2 == 1:
+        print("Odd number of input files in {}. Please check to make sure there are no missing paired-end or run files")
+        exit()
+    if work_dir == "":
+        args.work_dir = "{}/output".format(input_dir)
+    if core_count < 1:
+        print("Bad number of cores")
+        exit()
+    if cutadapt_min_length < -1 or cutadapt_min_length == 0:
+        print("Invalid value for --cutadapt-min-length")
+        exit()
+    if pear_min_overlap <= 0:
+        print("Invalid value for --pear-min-overlap")
+        exit()
+    if pear_max_assembly_length <= 0:
+        print("Invalid value for --pear-max-assembly-length")
+        exit()
+    if pear_min_assembly_length <= 0:
+        print("Invalid value for --pear-min-assembly-length")
+        exit()
+    if pear_min_assembly_length > pear_max_assembly_length:
+        print("--pear-min-assembly-length can't be greater than --pear-max-assembly-length")
+        exit()
+    if vsearch_filter_maxee < 0:
+        print("Invalid value for --vsearch-filter-maxee")
+        exit()
+    if vsearch_filter_trunclen <= 0:
+        print("Invalid value for --vesearch-filter-trunclen")
+        exit()
+    if vsearch_derep_minuniquesize < 0:
+        print("Invalid value for --vsearch-derep-minuniquesize")
+        exit()
+    if not os.path.isfile(uchime_ref_db_fp):
+        print("{} is not a valid file path".format(uchime_ref_db_fp))
+        exit()
+    return args
+ 
 
 class Pipeline:
     def __init__(self,
