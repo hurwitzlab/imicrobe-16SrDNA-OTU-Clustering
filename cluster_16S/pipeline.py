@@ -94,7 +94,7 @@ def check_args(args,
     if len(os.listdir(input_dir)) == 0:
         print("{} is empty".format(input_dir))
         exit()
-    if len(os.listdir(input_dir)) % 2 == 1:
+    if len([f for f in os.listdir(input_dir) if os.path.isfile(f)]) % 2 == 1:
         print("Odd number of input files in {}. Please check to make sure there are no missing paired-end or run files")
         exit()
     if work_dir == "":
