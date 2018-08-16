@@ -6,7 +6,7 @@
   "defaultMaxRunTime": "12:00:00",
   "defaultNodeCount": 1,
   "defaultQueue": "normal",
-  "deploymentPath": "mattmiller899/applications/imicrobe-16SrDNA-OTU-Clustering-0.0.2/stampede",
+  "deploymentPath": "mattmiller899/applications/16s_cluster-0.0.1/stampede",
   "deploymentSystem": "data.iplantcollaborative.org",
   "executionSystem": "tacc-stampede2-mattmill",
   "executionType": "HPC",
@@ -14,7 +14,7 @@
   "label": "iMicrobe 16SrDNA-OTU-Clustering",
   "longDescription": "iMicrobe 16S rDNA OTU Clustering",
   "modules": [],
-  "name": "mattmiller899-imicrobe-16SrDNA-OTU-Clustering",
+  "name": "16s_cluster",
   "ontology": [
     "http://sswapmeet.sswap.info/agave/apps/Application"
   ],
@@ -107,7 +107,7 @@
       }
     },
     {
-      "id": "cutadapt_minimum_length",
+      "id": "cutadapt_min_length",
       "value": {
         "default": -1,
         "required": false,
