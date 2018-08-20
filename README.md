@@ -93,11 +93,11 @@ My input data will be in /foo and my output data will be in /bar, all examples w
 No adapters, single runs:
 
 ```
-ls /foo
+$ ls /foo
 sample1_R1.fastq
 sample1_R2.fastq
 
-singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
+$ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --input-dir /foo \
   --work-dir /bar \
   --pear-min-overlap 200\
@@ -118,7 +118,7 @@ Inside /bar, there'll be 7 folders for each step of the pipeline:
 /bar/step_06_reference_based_chimera_detection
 /bar/step_07_create_otu_table
 
-ls /bar/step_07_create_otu_table
+$ ls /bar/step_07_create_otu_table
 sample1_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.biom
 sample1_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.txt
 log
@@ -128,13 +128,13 @@ log
 Reads have adapters, multiple runs
 
 ```
-ls /foo
+$ ls /foo
 sample1_R1_run1.fastq
 sample1_R1_run2.fastq
 sample1_R2_run1.fastq
 sample1_R2_run2.fastq
 
-singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
+$ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --input-dir /foo \
   --work-dir /bar \
   --pear-min-overlap 200\
@@ -161,7 +161,7 @@ Inside /bar, there'll be 9 folders for each step of the pipeline:
 /bar/step_06_reference_based_chimera_detection
 /bar/step_07_create_otu_table
 
-ls /bar/step_07_create_otu_table
+$ ls /bar/step_07_create_otu_table
 sample1_trimmed_merged_001_rebarcoded1_concat_runs.uchime.otutab.biom
 sample1_trimmed_merged_001_rebarcoded1_concat_runs.uchime.otutab.txt
 log
