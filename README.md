@@ -88,7 +88,7 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
 
 ## Examples
 
-My input data will be in /foo and my output data will be in /bar, all samples will be with the Singularity Container.
+My input data will be in /foo and my output data will be in /bar, all examples will be using the Singularity Container.
 
 No adapters, single runs:
 
@@ -119,8 +119,8 @@ Inside /bar, there'll be 7 folders for each step of the pipeline:
 /bar/step_07_create_otu_table
 
 ls /bar/step_07_create_otu_table
-sample1_trimmed_merged_001_rebarcoded1_concat_runs.uchime.otutab.biom
-sample1_trimmed_merged_001_rebarcoded1_concat_runs.uchime.otutab.txt
+sample1_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.biom
+sample1_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.txt
 log
 ```
 
