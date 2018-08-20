@@ -411,8 +411,23 @@ class Pipeline:
                 # delete the uncompressed input files
                 os.remove(forward_fastq_fp)
                 os.remove(reverse_fastq_fp)
-
                 gzip_files(glob.glob(joined_fastq_fp_prefix + '.*.fastq'))
+                with open(os.path.join(output_dir, 'log'), 'r') as logcheck:
+                    num_assembled = 0
+                    num_discarded = 0
+                    forward_fp = ""
+                    reverse_fp = ""
+                    for l in logcheck:
+                        if 'Forward reads file' in l:
+                            forward_fp = l.split(' ')[-1]
+                        elif 'Reverse reads file' in l:
+                            reverse_fp = l.split(' ')[-1]
+                        elif 'Assembled reads' in l and 'file' not in l:
+                            num_assembled = int(l.split(' ')[3])
+                        elif 'Discarded reads' in l and 'file' not in l:
+                            num_discarded = int(l.split(' ')[3])
+                            if num_discarded > num_assembled:
+                                log.warning("More sequences discarded than kept by PEAR for files '{}' and '{}'".format(forward_fp, reverse_fp))
 
         self.complete_step(log, output_dir)
         return output_dir
