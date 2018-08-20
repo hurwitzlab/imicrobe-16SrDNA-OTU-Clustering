@@ -426,6 +426,7 @@ class Pipeline:
                             num_assembled = int(l.split(' ')[3])
                         elif 'Discarded reads' in l and 'file' not in l:
                             num_discarded = int(l.split(' ')[3])
+                            log.info("num_assembled = {}, num_discarded = {}".format(num_assembled, num_discarded))
                             if num_discarded > num_assembled:
                                 log.warning("More sequences discarded than kept by PEAR for files '{}' and '{}'".format(forward_fp, reverse_fp))
 
