@@ -448,9 +448,22 @@ class Pipeline:
                     ],
                     log_file = os.path.join(output_dir, 'log')
                 )
-
             gzip_files(glob.glob(os.path.join(output_dir, '*.assembled.*.fastq')))
-
+            with open(os.path.join(output_dir, 'log'), 'r') as logcheck:
+                kept_num = 0
+                discarded_num = 0
+                for l in logcheck:
+                    if 'sequences kept' in l:
+                        l_arr = l.split(' ')
+                        kept_num = int(l_arr[0])
+                        discarded_num = int(l_arr[7])
+                    if 'executing' in l:
+                        l_arr = l.split(' ')
+                        ran_fp = l[3]
+                        if kept_num == 0:
+                            log.error("No sequences kept by vsearch qc for input file '{}'".format(ran_fp))
+                        if discarded_num > kept_num:
+                            log.warning("More sequences discarded than kept by vsearch qc for input file '{}'".format(ran_fp))
         self.complete_step(log, output_dir)
         return output_dir
 
