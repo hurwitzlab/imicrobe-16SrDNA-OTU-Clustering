@@ -1,8 +1,19 @@
 {
-  "name": "imicrobe-JUITS16S-test",
-  "appId": "imicrobe-JUITS16S-0.0.1",
-  "archive": true,
+  "name": "16s_cluster test-1534440543",
+  "appId": "16s_cluster-0.0.1",
+  "archive": false,
   "inputs": {
-    "INPUT_DIR": "/iplant/home/jklynch/data/imicrobe/JUITS16S"
+    "INPUT_DIR": "mattmiller899/16S_data_in"
+  },
+  "parameter": {
+    "pear_min_overlap": 10,
+    "pear_max_assembly_length": 500,
+    "pear_min_assembly_length": 220,
+    "vsearch_filter_maxee": 1,
+    "vsearch_filter_trunclen": 245,
+    "vsearch_derep_minuniquesize": 3,
+    "cutadapt_min_length": 100,
+    "core_count": 8,
+    "multiple_runs": true
   }
 }
