@@ -423,9 +423,10 @@ class Pipeline:
                         elif 'Reverse reads file' in l:
                             reverse_fp = l.split(' ')[-1]
                         elif 'Assembled reads' in l and 'file' not in l:
-                            num_assembled = int(l.split(' ')[3])
+                            num_assembled = int(l.split(' ')[3].replace(',', ''))
                         elif 'Discarded reads' in l and 'file' not in l:
-                            num_discarded = int(l.split(' ')[3])
+                            num_discarded = int(l.split(' ')[3].replace(',', ''))
+                            log.info("num_assembled = {}, num_discarded = {}".format(num_assembled, num_discarded))
                             if num_discarded > num_assembled:
                                 log.warning("More sequences discarded than kept by PEAR for files '{}' and '{}'".format(forward_fp, reverse_fp))
 
@@ -475,6 +476,7 @@ class Pipeline:
                     if 'executing' in l:
                         l_arr = l.split(' ')
                         ran_fp = l[3]
+                        log.info("kept_num = {}, discarded_num = {}".format(kept_num, discarded_num))
                         if kept_num == 0:
                             log.error("No sequences kept by vsearch qc for input file '{}'".format(ran_fp))
                         if discarded_num > kept_num:
