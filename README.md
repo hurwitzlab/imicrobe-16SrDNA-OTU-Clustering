@@ -67,7 +67,7 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --vsearch-derep-minuniquesize 3
 ```
 
-Argument Descriptions:
+## Argument Descriptions
 
 ```
 --input-dir INPUT_PATH (required): path to input directory containing input files
@@ -86,7 +86,7 @@ Argument Descriptions:
 --multiple-runs (optional): flag indicates that samples are split across multiple runs. Multiple runs should be named SAMPLE_R1/2_run1.fastq, SAMPLE_R1/2_run2.fastq, etc.
 ```
 
-Examples:
+## Examples
 
 My input data will be in /foo and my output data will be in /bar, all samples will be with the Singularity Container.
 
