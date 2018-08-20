@@ -476,6 +476,7 @@ class Pipeline:
                     if 'executing' in l:
                         l_arr = l.split(' ')
                         ran_fp = l[3]
+                        log.info("kept_num = {}, discarded_num = {}".format(kept_num, discarded_num))
                         if kept_num == 0:
                             log.error("No sequences kept by vsearch qc for input file '{}'".format(ran_fp))
                         if discarded_num > kept_num:
