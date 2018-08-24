@@ -64,13 +64,13 @@ def get_args():
     arg_parser.add_argument('--cutadapt-min-length', type=int, default=-1,
                             help='Min_length for cutadapt, filling this in indicates that there are primers/adadpters to be removed and cutadapt will be used')
 
-    arg_parser.add_argument('--pear-min-overlap', required=False, type=int,
+    arg_parser.add_argument('--pear-min-overlap', required=False, type=int, default=10,
                             help='-v/--min-overlap for pear')
     
-    arg_parser.add_argument('--pear-max-assembly-length', required=False, type=int,
+    arg_parser.add_argument('--pear-max-assembly-length', required=False, type=int, default=500,
                             help='-m/--max-assembly-length for pear')
 
-    arg_parser.add_argument('--pear-min-assembly-length', required=False, type=int,
+    arg_parser.add_argument('--pear-min-assembly-length', required=False, type=int, default=200,
                             help='-m/--min-assembly-length for pear')
 
     arg_parser.add_argument('--vsearch-filter-maxee', required=True, type=int,
