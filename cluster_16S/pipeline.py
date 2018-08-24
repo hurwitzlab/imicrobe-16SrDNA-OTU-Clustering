@@ -694,7 +694,7 @@ class Pipeline:
                 input_fps = self.concat_multiple_runs_for_step_07(self.work_dir, output_dir, log)
             elif self.paired_ends is True:
                 log.info('Concatenating from step_01_2')
-                input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*.fastq.gz'))
+                input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*.assembled*.fastq.gz'))
             elif self.paired_ends is False and self.cutadapt_min_length != -1:
                 log.info('Concatenating from step_01_1')
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_1*', '*.fastq.gz'))
@@ -764,7 +764,7 @@ class Pipeline:
         step_num = ''
         if self.paired_ends is True:
             log.info('Concatenating from step_01_2')
-            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*run1*.fastq.gz'))
+            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*run1*.assembled*.fastq.gz'))
             step_num = '01_2'
         elif self.paired_ends is False and self.cutadapt_min_length != -1:
             log.info('Concatenating from step_01_1')
