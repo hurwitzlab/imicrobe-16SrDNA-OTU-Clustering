@@ -460,10 +460,10 @@ class Pipeline:
         if len(os.listdir(output_dir)) > 0:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
-            input_files_glob = os.path.join(input_dir, '*.assembled.fastq.gz')
+            input_files_glob = os.path.join(input_dir, '*.fastq.gz')
             input_file_list = glob.glob(input_files_glob)
             if len(input_file_list) == 0:
-                raise PipelineException('found no assembled.fastq.gz files in directory "{}"'.format(input_dir))
+                raise PipelineException('found no .fastq.gz files in directory "{}"'.format(input_dir))
             log.info('input file glob: "%s"', input_files_glob)
             for assembled_fastq_fp in input_file_list:
                 input_file_basename = os.path.basename(assembled_fastq_fp)
@@ -513,16 +513,16 @@ class Pipeline:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
-            input_files_glob = os.path.join(input_dir, '*run1*.assembled.*.fastq.gz')
+            input_files_glob = os.path.join(input_dir, '*run1*.*.fastq.gz')
             log.info('input file glob: "%s"', input_files_glob)
             run_fp_list = sorted(glob.glob(input_files_glob))
             if len(run_fp_list) == 0:
-                raise PipelineException('found no run1*.assembled.fastq.gz files in directory "{}"'.format(input_dir))
+                raise PipelineException('found no run1*.fastq.gz files in directory "{}"'.format(input_dir))
             for run in run_fp_list:
                 sample_name = os.path.basename(run).split('_run1')[0]
                 trailing_name = os.path.basename(run).split('_run1')[1]
                 log.info('Sample name: "%s"', sample_name)
-                run_files_glob = os.path.join(input_dir, '%s*.assembled.*.fastq.gz' % sample_name)
+                run_files_glob = os.path.join(input_dir, '%s*.fastq.gz' % sample_name)
                 run_files_list = sorted(glob.glob(run_files_glob))
                 log.info('Sample run file list: "%s"', run_files_list)
                 output_run_file = '{}_combined{}'.format(sample_name, trailing_name)
@@ -542,11 +542,11 @@ class Pipeline:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
-            input_files_glob = os.path.join(input_dir, '*.assembled.*.fastq.gz')
+            input_files_glob = os.path.join(input_dir, '*.*.fastq.gz')
             log.info('input file glob: "%s"', input_files_glob)
             input_fp_list = sorted(glob.glob(input_files_glob))
             if len(input_fp_list) == 0:
-                raise PipelineException('found no .assembled.fastq.gz files in directory "{}"'.format(input_dir))
+                raise PipelineException('found no .fastq.gz files in directory "{}"'.format(input_dir))
             for input_fp in input_fp_list:
                 output_fp = os.path.join(
                     output_dir,
@@ -692,10 +692,17 @@ class Pipeline:
             otus_fp, *_ = glob.glob(os.path.join(input_dir, '*rad3.uchime.fasta'))
             if self.multiple_runs is True:
                 input_fps = self.concat_multiple_runs_for_step_07(self.work_dir, output_dir, log)
-            else:
-                input_fps = glob.glob(os.path.join(self.work_dir, 'step_02*', '*.assembled.fastq.gz'))
+            elif self.paired_ends is True:
+                log.info('Concatenating from step_01_2')
+                input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*.fastq.gz'))
+            elif self.paired_ends is False and self.cutadapt_min_length != -1:
+                log.info('Concatenating from step_01_1')
+                input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_1*', '*.fastq.gz'))
+            elif self.paired_ends is False and self.cutadapt_min_length == -1:
+                log.info('Concatenating from step_01_copy_and_compress')
+                input_fps = glob.glob(os.path.join(self.work_dir, 'step_01*', '*.fastq.gz'))
             if len(input_fps) == 0:
-                raise PipelineException('found no .assembled.fastq.gz files in directory "{}"'.format(os.path.join(self.work_dir, 'step_02')))
+                raise PipelineException('found no .fastq.gz files in directory "{}"'.format(os.path.join(self.work_dir, 'step_02')))
             for input_fp in input_fps:
                 fasta_fp = os.path.join(
                     output_dir,
@@ -716,7 +723,7 @@ class Pipeline:
                     output_dir,
                     re.sub(
                         string=os.path.basename(input_fp),
-                        pattern='\.assembled\.fastq\.gz$',
+                        pattern='\.fastq\.gz$',
                         repl='.uchime.otutab.txt'
                     )
                 )
@@ -724,7 +731,7 @@ class Pipeline:
                     output_dir,
                     re.sub(
                         string=os.path.basename(input_fp),
-                        pattern='\.assembled\.fastq\.gz$',
+                        pattern='\.fastq\.gz$',
                         repl='.uchime.otutab.biom'
                     )
                 )
@@ -754,15 +761,27 @@ class Pipeline:
 
     def concat_multiple_runs_for_step_07(self, work_dir, output_dir, log):
         log.info('Concatenating raw reads from multiple runs')
-        input_glob = os.path.join(work_dir, 'step_02*', '*run1*.assembled*.fastq.gz*')
+        step_num = ''
+        if self.paired_ends is True:
+            log.info('Concatenating from step_01_2')
+            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*.fastq.gz'))
+            step_num = '01_2'
+        elif self.paired_ends is False and self.cutadapt_min_length != -1:
+            log.info('Concatenating from step_01_1')
+            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01_1*', '*.fastq.gz'))
+            step_num = '01_1'
+        elif self.paired_ends is False and self.cutadapt_min_length == -1:
+            log.info('Concatenating from step_01_copy_and_compress')
+            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01*', '*.fastq.gz'))
+            step_num = '01'
         run1_fps = sorted(glob.glob(input_glob))    
         input_fps = []
         for run in run1_fps:
             sample_name = os.path.basename(run).split('_run1')[0]
-            sample_glob = os.path.join(work_dir, 'step_02*', '*%s*.assembled*.fastq.gz*' % sample_name)
+            sample_glob = os.path.join(work_dir, 'step_%s*' % step_num, '*%s*.fastq.gz*' % sample_name)
             sample_list = sorted(glob.glob(sample_glob))
             log.info('Sample list: "%s"', str(sample_list))
-            output_file = os.path.join(output_dir, '%s_concat_runs.assembled.fastq.gz' % sample_name)
+            output_file = os.path.join(output_dir, '%s_concat_runs.fastq.gz' % sample_name)
             with open(output_file, 'wb') as outfile:
                 for sample in sample_list:
                     with open(sample, 'rb') as infile:
