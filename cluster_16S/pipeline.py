@@ -774,6 +774,7 @@ class Pipeline:
             log.info('Concatenating from step_01_copy_and_compress')
             input_glob = glob.glob(os.path.join(self.work_dir, 'step_01*', '*.fastq.gz'))
             step_num = '01'
+        log.info('run1 glob = %s' % input_glob)
         run1_fps = sorted(glob.glob(input_glob))    
         input_fps = []
         for run in run1_fps:
