@@ -27,7 +27,7 @@ def get_sorted_file_list(dir_path):
     )
 
 
-def create_output_dir(output_dir_name, parent_dir=None, input_dir=None):
+def create_output_dir(output_dir_name, parent_dir=None, input_dir=None, debug=False):
     if parent_dir is not None and input_dir is None:
         pass
     elif input_dir is not None and parent_dir is None:
@@ -36,6 +36,10 @@ def create_output_dir(output_dir_name, parent_dir=None, input_dir=None):
         raise ValueError('exactly one of parent_dir and input_dir must be None')
 
     log = logging.getLogger(name=__name__)
+    if debug is True:
+        log.setLevel(logging.DEBUG)
+    else:
+        log.setLevel(logging.WARNING)
     output_dir = os.path.join(parent_dir, output_dir_name)
     if os.path.exists(output_dir):
         log.warning('directory "%s" already exists', output_dir)
@@ -44,8 +48,12 @@ def create_output_dir(output_dir_name, parent_dir=None, input_dir=None):
     return output_dir
 
 
-def get_forward_fastq_files(input_dir):
+def get_forward_fastq_files(input_dir, debug=False):
     log = logging.getLogger(name=__name__)
+    if debug is True:
+        log.setLevel(logging.DEBUG)
+    else:
+        log.setLevel(logging.WARNING)
     input_glob = os.path.join(input_dir, '*_[R0]1*.fastq*')
     log.info('searching for forward read files with glob "%s"', input_glob)
     forward_fastq_files = glob.glob(input_glob)
@@ -64,8 +72,12 @@ def get_associated_reverse_fastq_fp(forward_fp):
     return reverse_fastq_fp
 
 
-def gzip_files(file_list):
+def gzip_files(file_list, debug=False):
     log = logging.getLogger(name=__name__)
+    if debug is True:
+        log.setLevel(logging.DEBUG)
+    else:
+        log.setLevel(logging.WARNING)
     for fp in file_list:
         with open(fp, 'rt') as src, gzip.open(fp + '.gz', 'wt') as dst:
             log.info('compressing file "%s"', fp)
@@ -84,8 +96,12 @@ def ungzip_files(*fp_list, target_dir):
     return uncompressed_fps
 
 
-def run_cmd(cmd_line_list, log_file, **kwargs):
+def run_cmd(cmd_line_list, log_file, debug=False, **kwargs):
     log = logging.getLogger(name=__name__)
+    if debug is True:
+        log.setLevel(logging.DEBUG)
+    else:
+        log.setLevel(logging.WARNING)
     try:
         with open(log_file, 'at') as log_file:
             cmd_line_str = ' '.join((str(x) for x in cmd_line_list))

@@ -233,7 +233,7 @@ class Pipeline:
             log.setLevel(logging.DEBUG)
         else:
             log.setLevel(logging.WARNING)
-        output_dir = create_output_dir(output_dir_name=function_name, parent_dir=self.work_dir)
+        output_dir = create_output_dir(output_dir_name=function_name, parent_dir=self.work_dir, debug=self.debug)
         return log, output_dir
 
     def complete_step(self, log, output_dir):
@@ -298,7 +298,7 @@ class Pipeline:
         else:
             log.info('using cutadapt "%s"', self.cutadapt_executable_fp)
 
-            for forward_fastq_fp in get_forward_fastq_files(input_dir=input_dir):
+            for forward_fastq_fp in get_forward_fastq_files(input_dir=input_dir, debug=self.debug):
                 log.info('removing forward primers from file "%s"', forward_fastq_fp)
                 forward_fastq_basename = os.path.basename(forward_fastq_fp)
 
@@ -329,7 +329,8 @@ class Pipeline:
                         forward_fastq_fp,
                         reverse_fastq_fp
                     ],
-                    log_file = os.path.join(output_dir, 'log')
+                    log_file = os.path.join(output_dir, 'log'),
+                    debug=self.debug
                 )
 
                 self.complete_step(log, output_dir)
@@ -398,7 +399,7 @@ class Pipeline:
         else:
             log.info('PEAR executable: "%s"', self.pear_executable_fp)
 
-            for compressed_forward_fastq_fp in get_forward_fastq_files(input_dir=input_dir):
+            for compressed_forward_fastq_fp in get_forward_fastq_files(input_dir=input_dir, debug=self.debug):
                 compressed_reverse_fastq_fp = get_associated_reverse_fastq_fp(forward_fp=compressed_forward_fastq_fp)
 
                 forward_fastq_fp, reverse_fastq_fp = ungzip_files(
@@ -425,13 +426,14 @@ class Pipeline:
                         '--min-assembly-length', str(self.pear_min_assembly_length),
                         '-j', str(self.core_count)
                     ],
-                    log_file = os.path.join(output_dir, 'log')
+                    log_file = os.path.join(output_dir, 'log'),
+                    debug=self.debug
                 )
 
                 # delete the uncompressed input files
                 os.remove(forward_fastq_fp)
                 os.remove(reverse_fastq_fp)
-                gzip_files(glob.glob(joined_fastq_fp_prefix + '.*.fastq'))
+                gzip_files(glob.glob(joined_fastq_fp_prefix + '.*.fastq'), debug=self.debug)
                 with open(os.path.join(output_dir, 'log'), 'r') as logcheck:
                     num_assembled = 0
                     num_discarded = 0
@@ -482,9 +484,10 @@ class Pipeline:
                         '-fastq_trunclen', str(self.vsearch_filter_trunclen),
                         '-threads', str(self.core_count)
                     ],
-                    log_file = os.path.join(output_dir, 'log')
+                    log_file = os.path.join(output_dir, 'log'),
+                    debug=self.debug
                 )
-            gzip_files(glob.glob(os.path.join(output_dir, '*.assembled.*.fastq')))
+            gzip_files(glob.glob(os.path.join(output_dir, '*.assembled.*.fastq')), debug=self.debug)
             with open(os.path.join(output_dir, 'log'), 'r') as logcheck:
                 kept_num = 0
                 discarded_num = 0
@@ -568,10 +571,11 @@ class Pipeline:
                         '-minuniquesize', str(self.vsearch_derep_minuniquesize),
                         '-threads', str(self.core_count)
                     ],
-                    log_file = os.path.join(output_dir, 'log')
+                    log_file = os.path.join(output_dir, 'log'),
+                    debug=self.debug
                 )
 
-            gzip_files(glob.glob(os.path.join(output_dir, '*.fasta')))
+            gzip_files(glob.glob(os.path.join(output_dir, '*.fasta')), debug=self.debug)
 
         self.complete_step(log, output_dir)
         return output_dir
@@ -616,7 +620,8 @@ class Pipeline:
                         #'-sizeout',
                         '-uparseout', uparse_output_fp
                     ],
-                    log_file = os.path.join(output_dir, 'log')
+                    log_file = os.path.join(output_dir, 'log'),
+                    debug=self.debug
                 )
 
                 os.remove(input_fp)
@@ -672,7 +677,8 @@ class Pipeline:
                         '-nonchimeras', notmatched_fp,
                         '-threads', str(self.core_count)
                     ],
-                    log_file = os.path.join(output_dir, 'log')
+                    log_file = os.path.join(output_dir, 'log'),
+                    debug=self.debug
                 )
 
         self.complete_step(log, output_dir)
@@ -703,7 +709,8 @@ class Pipeline:
                     '--fastq_filter', input_fp,
                     '--fastaout', fasta_fp
                     ],
-                    log_file=os.path.join(output_dir, 'log')
+                    log_file=os.path.join(output_dir, 'log'),
+                    debug=self.debug
                 )
                 otu_table_fp = os.path.join(
                     output_dir,
@@ -734,7 +741,8 @@ class Pipeline:
                         '--sizeout',
                         '--threads', str(self.core_count)
                     ],
-                    log_file = os.path.join(output_dir, 'log')
+                    log_file = os.path.join(output_dir, 'log'),
+                    debug=self.debug
                 )
 
                 os.remove(fasta_fp)
