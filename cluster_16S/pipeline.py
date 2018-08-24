@@ -781,7 +781,7 @@ class Pipeline:
             sample_name = os.path.basename(run).split('_run1')[0]
             sample_glob = os.path.join(work_dir, 'step_%s*' % step_num, '*%s*.fastq.gz*' % sample_name)
             sample_list = sorted(glob.glob(sample_glob))
-            log.info('Sample list: "%s"', str(sample_list))
+            log.info('Runs to be concatenated together: "%s"', str(sample_list))
             output_file = os.path.join(output_dir, '%s_concat_runs.fastq.gz' % sample_name)
             with open(output_file, 'wb') as outfile:
                 for sample in sample_list:
