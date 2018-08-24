@@ -487,7 +487,7 @@ class Pipeline:
                     log_file = os.path.join(output_dir, 'log'),
                     debug=self.debug
                 )
-            gzip_files(glob.glob(os.path.join(output_dir, '*.assembled.*.fastq')), debug=self.debug)
+            gzip_files(glob.glob(os.path.join(output_dir, '*.fastq')), debug=self.debug)
             with open(os.path.join(output_dir, 'log'), 'r') as logcheck:
                 kept_num = 0
                 discarded_num = 0
