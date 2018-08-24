@@ -15,9 +15,10 @@ import re
 import shutil
 import sys
 
-from cluster_16S.pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
+#TODO CHANGE BACK TO cluster_16S.
+from pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
     gzip_files, ungzip_files, run_cmd, PipelineException
-from cluster_16S.fasta_qual_to_fastq import fasta_qual_to_fastq
+from fasta_qual_to_fastq import fasta_qual_to_fastq
 
 
 def main():
@@ -42,17 +43,26 @@ def get_args():
     arg_parser.add_argument('-m', '--multiple-runs', action='store_true', default=False,
                             help='indicates whether samples are split across multiple runs. If so, files must be named \"SAMPLENAME_run1.fastq\", \"SAMPLENAME_run2.fastq\", ...')
 
+    arg_parser.add_argument('-p', '--paired-ends', action='store_true', default=False,
+                            help='flag that indicates whether your data is in paired ends. If so, files must be named \"SAMPLENAME_R1.fastq\", \"SAMPLENAME_R1.fastq\"')
+
+    arg_parser.add_argument('--steps', default=6, type=int,
+                            help='Indicates that pipeline should only run up to this step. Optional steps (such as remove_primers or combine_runs) will not count against this step count')
+
+    arg_parser.add_argument('--debug', default=False, action='store_true',
+                            help='Flag to start debugging output. Errors and warning will still be written to stderr if this flag is not used')
+
     arg_parser.add_argument('--forward-primer', default='ATTAGAWACCCVNGTAGTCC',
-                            help='forward primer to be clipped by cutadapt')
+                            help='Forward primer to be clipped by cutadapt')
 
     arg_parser.add_argument('--reverse-primer', default='TTACCGCGGCKGCTGGCAC',
-                            help='reverse primer to be clipped by cutadapt')
+                            help='Reverse primer to be clipped by cutadapt')
 
     arg_parser.add_argument('--uchime-ref-db-fp', default='/app/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz',
-                            help='database for vsearch --uchime_ref (if using singularity image, will use built-in SILVA database if no arg given)')
+                            help='Database for vsearch --uchime_ref (if using singularity image, will use built-in SILVA database if no arg given)')
 
     arg_parser.add_argument('--cutadapt-min-length', type=int, default=-1,
-                            help='min_length for cutadapt, filling this in indicates that there are primers/adadpters to be removed and cutadapt will be used')
+                            help='Min_length for cutadapt, filling this in indicates that there are primers/adadpters to be removed and cutadapt will be used')
 
     arg_parser.add_argument('--pear-min-overlap', required=True, type=int,
                             help='-v/--min-overlap for pear')
@@ -70,7 +80,7 @@ def get_args():
                             help='fastq_trunclen for vsearch')
 
     arg_parser.add_argument('--vsearch-derep-minuniquesize', required=True, type=int,
-                            help='minimum unique size for vsearch -derep_fulllength')
+                            help='Minimum unique size for vsearch -derep_fulllength')
 
     args = arg_parser.parse_args()
     return args
@@ -80,6 +90,9 @@ def check_args(args,
             work_dir,
             core_count,
             multiple_runs,
+            paired_ends,
+            steps,
+            debug,
             cutadapt_min_length,
             forward_primer, reverse_primer,
             pear_min_overlap, pear_max_assembly_length, pear_min_assembly_length,
@@ -131,6 +144,9 @@ def check_args(args,
     if not os.path.isfile(uchime_ref_db_fp):
         print("{} is not a valid file path".format(uchime_ref_db_fp))
         exit()
+    if steps < 1:
+        print("Invalid value for --steps")
+        exit()
     return args
  
 
@@ -139,6 +155,9 @@ class Pipeline:
             work_dir,
             core_count,
             multiple_runs,
+            paired_ends,
+            steps,
+            debug,
             cutadapt_min_length,
             forward_primer, reverse_primer,
             pear_min_overlap, pear_max_assembly_length, pear_min_assembly_length,
@@ -151,6 +170,9 @@ class Pipeline:
         self.work_dir = work_dir
         self.core_count = core_count
         self.multiple_runs = multiple_runs
+        self.paired_ends = paired_ends
+        self.steps = steps
+        self.debug = debug
         self.cutadapt_min_length = cutadapt_min_length
         self.forward_primer = forward_primer
         self.reverse_primer = reverse_primer
@@ -173,60 +195,58 @@ class Pipeline:
 
     def run(self, input_dir):
         output_dir_list = list()
+        step_counter = 0
         output_dir_list.append(self.step_01_copy_and_compress(input_dir=input_dir))
+        step_counter += 1
+        if self.steps == step_counter:
+            return output_dir_list
         if self.cutadapt_min_length != -1:
-            output_dir_list.append(self.step_01_5_remove_primers(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_02_merge_forward_reverse_reads_with_pear(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_03_qc_reads_with_vsearch(input_dir=output_dir_list[-1]))
+            output_dir_list.append(self.step_01_1_remove_primers(input_dir=output_dir_list[-1]))
+        if self.paired_ends is True:
+            output_dir_list.append(self.step_01_2_merge_forward_reverse_reads_with_pear(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_02_qc_reads_with_vsearch(input_dir=output_dir_list[-1]))
+        step_counter += 1
+        if self.steps == step_counter:
+            return output_dir_list
         if self.multiple_runs is True:
-            output_dir_list.append(self.step_03_5_combine_runs(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_04_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_05_cluster_97_percent(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_06_reference_based_chimera_detection(input_dir=output_dir_list[-1]))
-        output_dir_list.append(self.step_07_create_otu_table(input_dir=output_dir_list[-1]))
+            output_dir_list.append(self.step_02_1_combine_runs(input_dir=output_dir_list[-1]))
+        output_dir_list.append(self.step_03_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
+        step_counter += 1
+        if self.steps == step_counter:
+            return output_dir_list
+        output_dir_list.append(self.step_04_cluster_97_percent(input_dir=output_dir_list[-1]))
+        step_counter += 1
+        if self.steps == step_counter:
+            return output_dir_list
+        output_dir_list.append(self.step_05_reference_based_chimera_detection(input_dir=output_dir_list[-1]))
+        step_counter += 1
+        if self.steps == step_counter:
+            return output_dir_list
+        output_dir_list.append(self.step_06_create_otu_table(input_dir=output_dir_list[-1]))
 
         return output_dir_list
 
     def initialize_step(self):
         function_name = sys._getframe(1).f_code.co_name
         log = logging.getLogger(name=function_name)
+        if self.debug is True:
+            log.setLevel(logging.DEBUG)
+        else:
+            log.setLevel(logging.WARNING)
         output_dir = create_output_dir(output_dir_name=function_name, parent_dir=self.work_dir)
         return log, output_dir
 
     def complete_step(self, log, output_dir):
-        return
         output_dir_list = sorted(os.listdir(output_dir))
         if len(output_dir_list) == 0:
             raise PipelineException('ERROR: no output files in directory "{}"'.format(output_dir))
-        else:
-            log.info('output files:\n\t%s', '\n\t'.join(os.listdir(output_dir)))
-            # apply FastQC to all .fastq files
-            fastq_file_list = [
-                os.path.join(output_dir, output_file)
-                for output_file
-                in output_dir_list
-                if re.search(pattern=r'\.fastq(\.gz)?$', string=output_file)
-            ]
+        return
 
-            if len(fastq_file_list) == 0:
-                log.info('no .fastq files found in "{}"'.format(output_dir))
-            else:
-                fastqc_output_dir = os.path.join(output_dir, 'fastqc_results')
-                os.makedirs(fastqc_output_dir, exist_ok=True)
-                run_cmd(
-                    [
-                        'fastqc',
-                        '--threads', str(self.core_count),
-                        '--outdir', fastqc_output_dir,
-                        *fastq_file_list
-                    ],
-                    log_file=os.path.join(fastqc_output_dir, 'log')
-                )
 
     def step_01_copy_and_compress(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.debug('output_dir: %s', output_dir)
             # Check for fasta and qual files
@@ -271,10 +291,10 @@ class Pipeline:
         return output_dir
     
     
-    def step_01_5_remove_primers(self, input_dir):
+    def step_01_1_remove_primers(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('using cutadapt "%s"', self.cutadapt_executable_fp)
 
@@ -371,10 +391,10 @@ class Pipeline:
     """    
 
 
-    def step_02_merge_forward_reverse_reads_with_pear(self, input_dir):
+    def step_01_2_merge_forward_reverse_reads_with_pear(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('PEAR executable: "%s"', self.pear_executable_fp)
 
@@ -433,10 +453,10 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_03_qc_reads_with_vsearch(self, input_dir):
+    def step_02_qc_reads_with_vsearch(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             input_files_glob = os.path.join(input_dir, '*.assembled.fastq.gz')
             input_file_list = glob.glob(input_files_glob)
@@ -484,10 +504,10 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_03_5_combine_runs(self, input_dir):
+    def step_02_1_combine_runs(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
             input_files_glob = os.path.join(input_dir, '*run1*.assembled.*.fastq.gz')
@@ -513,10 +533,10 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_04_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
+    def step_03_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
             input_files_glob = os.path.join(input_dir, '*.assembled.*.fastq.gz')
@@ -556,10 +576,10 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_05_cluster_97_percent(self, input_dir):
+    def step_04_cluster_97_percent(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             # can usearch read gzipped files? no
             input_files_glob = os.path.join(input_dir, '*.fasta.gz')
@@ -604,10 +624,10 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_06_reference_based_chimera_detection(self, input_dir):
+    def step_05_reference_based_chimera_detection(self, input_dir):
         log, output_dir = self.initialize_step()
         if len([entry for entry in os.scandir(output_dir) if not entry.name.startswith('.')]) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             input_fps = glob.glob(os.path.join(input_dir, '*.fasta'))
             if len(input_fps) == 0:
@@ -658,10 +678,10 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def step_07_create_otu_table(self, input_dir):
+    def step_06_create_otu_table(self, input_dir):
         log, output_dir = self.initialize_step()
         if len([entry for entry in os.scandir(output_dir) if not entry.name.startswith('.')]) > 0:
-            log.info('output directory "%s" is not empty, this step will be skipped', output_dir)
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             otus_fp, *_ = glob.glob(os.path.join(input_dir, '*rad3.uchime.fasta'))
             if self.multiple_runs is True:
