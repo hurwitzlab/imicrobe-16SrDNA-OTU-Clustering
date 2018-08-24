@@ -460,7 +460,10 @@ class Pipeline:
         if len(os.listdir(output_dir)) > 0:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
-            input_files_glob = os.path.join(input_dir, '*.fastq.gz')
+            if self.paired_ends is True:
+                input_files_glob = os.path.join(input_dir, '*.assembled*.fastq.gz')
+            else:
+                input_files_glob = os.path.join(input_dir, '*.fastq.gz')
             input_file_list = glob.glob(input_files_glob)
             if len(input_file_list) == 0:
                 raise PipelineException('found no .fastq.gz files in directory "{}"'.format(input_dir))
