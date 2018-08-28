@@ -29,7 +29,7 @@ Run the pipeline:
 $ cluster_16S \
   --input-dir <input file glob> \
   --work-dir <directory for intermediate and final output> \
-  --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
+  --uchime-ref-db-fp ~/host/project/silva/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz \
   --vsearch-filter-maxee 1 \
   --vsearch-filter-trunclen 245 \
   --vsearch-derep-minuniquesize 3
@@ -55,7 +55,7 @@ Run the pipeline:
 $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --input-dir <input file glob> \
   --work-dir <directory for intermediate and final output> \
-  --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
+  --uchime-ref-db-fp ~/host/project/silva/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz \
   --vsearch-filter-maxee 1 \
   --vsearch-filter-trunclen 245 \
   --vsearch-derep-minuniquesize 3
@@ -91,38 +91,37 @@ No adapters, single runs:
 
 ```
 $ ls /foo
-sample1_R1.fastq
-sample1_R2.fastq
+sample1.fastq
+sample2.fastq
 
 $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --input-dir /foo \
   --work-dir /bar \
-  --pear-min-overlap 200\
-  --pear-max-assembly-length 270 \
-  --pear-min-assembly-length 220 \
   --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
   --vsearch-filter-maxee 1 \
   --vsearch-filter-trunclen 245 \
   --vsearch-derep-minuniquesize 3
 ```
-Inside /bar, there'll be 7 folders for each step of the pipeline:
+Inside /bar, there'll be 6 folders for each step of the pipeline:
 ```
+$ ls /bar
 /bar/step_01_copy_and_compress
-/bar/step_02_merge_forward_reverse_reads_with_pear
-/bar/step_03_qc_reads_with_vsearch
-/bar/step_04_dereplicate_sort_remove_low_abundance_reads
-/bar/step_05_cluster_97_percent
-/bar/step_06_reference_based_chimera_detection
-/bar/step_07_create_otu_table
+/bar/step_02_qc_reads_with_vsearch
+/bar/step_03_dereplicate_sort_remove_low_abundance_reads
+/bar/step_04_cluster_97_percent
+/bar/step_05_reference_based_chimera_detection
+/bar/step_06_create_otu_table
 
-$ ls /bar/step_07_create_otu_table
+$ ls /bar/step_06_create_otu_table
 sample1_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.biom
 sample1_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.txt
+sample2_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.biom
+sample2_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.txt
 log
 ```
 
 
-Reads have adapters, multiple runs
+Reads have adapters, multiple runs, and are paired ends:
 
 ```
 $ ls /foo
@@ -134,7 +133,8 @@ sample1_R2_run2.fastq
 $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --input-dir /foo \
   --work-dir /bar \
-  --pear-min-overlap 200\
+  --paired-ends \
+  --pear-min-overlap 15 \
   --pear-max-assembly-length 270 \
   --pear-min-assembly-length 220 \
   --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
@@ -148,17 +148,18 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
 ```
 Inside /bar, there'll be 9 folders for each step of the pipeline:
 ```
+$ ls /bar
 /bar/step_01_copy_and_compress
-/bar/step_01_5_remove_primers
-/bar/step_02_merge_forward_reverse_reads_with_pear
-/bar/step_03_qc_reads_with_vsearch
-/bar/step_03_5_combine_runs
-/bar/step_04_dereplicate_sort_remove_low_abundance_reads
-/bar/step_05_cluster_97_percent
-/bar/step_06_reference_based_chimera_detection
-/bar/step_07_create_otu_table
+/bar/step_01_1_remove_primers
+/bar/step_01_2_merge_forward_reverse_reads_with_pear
+/bar/step_02_qc_reads_with_vsearch
+/bar/step_02_1_combine_runs
+/bar/step_03_dereplicate_sort_remove_low_abundance_reads
+/bar/step_04_cluster_97_percent
+/bar/step_05_reference_based_chimera_detection
+/bar/step_06_create_otu_table
 
-$ ls /bar/step_07_create_otu_table
+$ ls /bar/step_06_create_otu_table
 sample1_trimmed_merged_001_rebarcoded1_concat_runs.uchime.otutab.biom
 sample1_trimmed_merged_001_rebarcoded1_concat_runs.uchime.otutab.txt
 log
