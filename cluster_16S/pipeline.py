@@ -58,7 +58,7 @@ def get_args():
     arg_parser.add_argument('--reverse-primer', default='TTACCGCGGCKGCTGGCAC',
                             help='Reverse primer to be clipped by cutadapt')
 
-    arg_parser.add_argument('--uchime-ref-db-fp', default='/app/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz',
+    arg_parser.add_argument('--uchime-ref-db-fp', default='/app/silva/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz',
                             help='Database for vsearch --uchime_ref (if using singularity image, will use built-in SILVA database if no arg given)')
 
     arg_parser.add_argument('--cutadapt-min-length', type=int, default=-1,
