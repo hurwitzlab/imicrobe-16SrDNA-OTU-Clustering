@@ -29,9 +29,6 @@ Run the pipeline:
 $ cluster_16S \
   --input-dir <input file glob> \
   --work-dir <directory for intermediate and final output> \
-  --pear-min-overlap 20 \
-  --pear-max-assembly-length 270 \
-  --pear-min-assembly-length 220 \
   --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
   --vsearch-filter-maxee 1 \
   --vsearch-filter-trunclen 245 \
@@ -58,9 +55,6 @@ Run the pipeline:
 $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --input-dir <input file glob> \
   --work-dir <directory for intermediate and final output> \
-  --pear-min-overlap 200\
-  --pear-max-assembly-length 270 \
-  --pear-min-assembly-length 220 \
   --uchime-ref-db-fp ~/host/project/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz \
   --vsearch-filter-maxee 1 \
   --vsearch-filter-trunclen 245 \
@@ -71,19 +65,22 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
 
 ```
 --input-dir INPUT_PATH (required): path to input directory containing input files
---output-dir OUTPUT_PATH (optional): path to directory where output will be written. Default: INPUT_DIR/output
+--work-dir OUTPUT_PATH (optional): path to directory where output will be written. Default: INPUT_DIR/output
 --core-count CORE_COUNT (optional): number of cores to run the pipeline on. Default: 1
 --uchime-ref-db-fp DB_FP (required/optional): path to reference database for chimera detection. Having a database is required, but the Singularity container has a database built in and is the default value.
---pear-min-overlap OVERLAP (required): minimum number of overlapping bases needed between paired-end reads for a mate pair to form.
---pear-min-assembly-length LENGTH (required): minimum length of the assembled read following PEAR mate pairing
---pear-max-assembly-length LENGTH (required): maximum length of the assmbled read following PEAR mate pairing
+--paired-ends (optional): flag that indicates reads are split into paired ends. Triggers use of PEAR to merge paired-end reads.
+--pear-min-overlap OVERLAP (optional): minimum number of overlapping bases needed between paired-end reads for a mate pair to form.
+--pear-min-assembly-length LENGTH (optional): minimum length of the assembled read following PEAR mate pairing. Reads will be removed if they're shorter than this length.
+--pear-max-assembly-length LENGTH (optional): maximum length of the assmbled read following PEAR mate pairing. Reads will be removed if they're longer than this length.
 --vsearch-filter-maxee NUMBER (required): fastq_maxee for vsearch
---vsearch-filter-trunclen LENGTH (required): size to truncate reads to following PEAR
+--vsearch-filter-trunclen LENGTH (required): size to truncate reads to during QC. Reads shorter than this length will be removed.
 --vsearch-derep-minuniquesize SIZE (required): discard sequences with a post-dereplication abundance value less than SIZE
---cutadapt-min-length LENGTH (optional): minimum length of reads following adapter removal. Reads shorter than this length will be discarded. USING THIS ARGUMENT INDICATES TRIGGERS ADAPTER REMOVAL.
+--cutadapt-min-length LENGTH (optional): minimum length of reads following adapter removal. Reads shorter than this length will be discarded. USING THIS ARGUMENT TRIGGERS ADAPTER REMOVAL.
 --forward-primer SEQUENCE (optional): sequence of forward primer to be used with Cutadapt. Supports IUPAC nomenclature
 --reverse-primer SEQUENCE (optional): sequence of reverse primer to be used with Cutadapt. Supports IUPAC nomenclature
---multiple-runs (optional): flag indicates that samples are split across multiple runs. Multiple runs should be named SAMPLE_R1/2_run1.fastq, SAMPLE_R1/2_run2.fastq, etc.
+--multiple-runs (optional): flag that indicates that samples are split across multiple runs. Multiple runs should be named SAMPLE_R1/2_run1.fastq, SAMPLE_R1/2_run2.fastq, etc.
+--steps NUM_STEPS (optional): indicates that pipeline should only run up to this step. Optional steps (such as remove_primers or combine_runs) will not count against this step count
+--debug (optional): flag that triggers debugging information to be written to stderr. Warnings and errors will still be written without this flag set.
 ```
 
 ## Examples
