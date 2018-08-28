@@ -56,7 +56,7 @@ From: jkhurwitzlab/base:base
    cd $APP_DIR
    mkdir silva
    cd silva
-   wget https://www.arb-silva.de/fileadmin/silva_databases/release_128/Exports/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz
+   wget https://www.arb-silva.de/fileadmin/silva_databases/release_132/Exports/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz
 
    # create mount points for TACC directories
    mkdir /home1
