@@ -10,7 +10,7 @@
   "deploymentSystem": "data.iplantcollaborative.org",
   "executionSystem": "tacc-stampede2-mattmill",
   "executionType": "HPC",
-  "helpURI": "http://protocols.io",
+  "helpURI": "https://github.com/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering",
   "label": "iMicrobe 16SrDNA-OTU-Clustering",
   "longDescription": "iMicrobe 16S rDNA OTU Clustering",
   "modules": [],
@@ -53,7 +53,7 @@
     {
       "id": "UCHIME_REF_DB",
       "value": {
-        "default": "/app/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz",
+        "default": "",
         "required": false,
         "visible": true
       },
@@ -64,7 +64,7 @@
         "maxCardinality":1
       },
       "details": {
-        "description": "The file path \"/app/silva/SILVA_128_SSURef_Nr99_tax_silva.fasta.gz\" is the default database. If you would like to use a different database you may do so.",
+        "description": "The database \"SILVA_132_SSURef_Nr99_tax_silva.fasta.gz\" is the default database and will be used if this field is left blank. If you would like to use a different database you may do so.",
         "label": "Database for chimera detection",
         "argument": "--uchime-ref-db-fp ",
         "showArgument": true
@@ -84,7 +84,7 @@
       },
       "details": {
         "argument": "--forward-primer ",
-        "description": "",
+        "description": "Removed by Cutadapt",
         "label": "Forward Primer",
         "showArgument": true
       }
@@ -101,7 +101,7 @@
       },
       "details": {
         "argument": "--reverse-primer ",
-        "description": "",
+        "description": "Removed by Cutadapt",
         "label": "Reverse Primer",
         "showArgument": true
       }
@@ -118,7 +118,7 @@
       },
       "details": {
         "argument": "--cutadapt-min-length ",
-        "description": "",
+        "description": "Cutadapt will only be used if you change this value from -1, if your reads don't have primers/adapters, leave this alone",
         "label": "Cutadapt Minimum Length",
         "showArgument": true
       }
@@ -135,8 +135,8 @@
       },
       "details": {
         "argument": "--core-count ",
-        "description": "number of cores to run on",
-        "label": "number of cores",
+        "description": "Minimum 1, maximum 16",
+        "label": "Number of cores",
         "showArgument": true
       }
     },
@@ -152,16 +152,67 @@
       },
       "details": {
         "argument": "--multiple-runs ",
-        "description": "Indicates that files in the INPUT_DIR are split into multiple runs",
-        "label": "multiple runs",
+        "description": "Indicates that files in the INPUT_DIR are split into multiple runs, with the format \"SAMPLE_run1/2/3/.fastq\"",
+        "label": "Are your samples split into multiple runs?",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "debug",
+      "value": {
+        "default": false,
+        "required": false,
+        "type": "flag",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--debug ",
+        "description": "Causes the logger to write debugging information to stderr. Warnings and error will still be written if this flag is not selected.",
+        "label": "Debugging",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "steps",
+      "value": {
+        "default": 6,
+        "required": false,
+        "type": "number",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--steps ",
+        "description": "Causes the app to only do steps up to and including this number. Optional steps such as remove primers or merge paired-end reads are not included in the tally.",
+        "label": "Number of steps to run",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "paired_ends",
+      "value": {
+        "default": false,
+        "required": false,
+        "type": "flag",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--paired-ends ",
+        "description": "Indicates that files in the INPUT_DIR are in paired-ends format. Each pair will need the format \"SAMPLE_R1/2.fastq, and if they're also split into multiple runs, the \"R1/2\" needs to precede \"run1/2\", like \"SAMPLE_R1_run1.fastq\"",
+        "label": "Are your samples in paired-end files?",
         "showArgument": true
       }
     },
     {
       "id": "pear_min_overlap",
       "value": {
-        "default": 20,
-        "required": true,
+        "default": 10,
+        "required": false,
         "type": "number",
         "visible": true
       },
@@ -170,7 +221,7 @@
       "details": {
         "argument": "--pear-min-overlap ",
         "description": "-v/--min-overlap for pear",
-        "label": "min overlap",
+        "label": "Minimum overlap between paired-end reads",
         "showArgument": true
       }
     },
@@ -178,7 +229,7 @@
       "id": "pear_max_assembly_length",
       "value": {
         "default": 270,
-        "required": true,
+        "required": false,
         "type": "number",
         "visible": true
       },
@@ -187,7 +238,7 @@
       "details": {
         "argument": "--pear-max-assembly-length ",
         "description": "-m/--max-assembly-length for pear",
-        "label": "max assembly length",
+        "label": "Maximum assembly length for merged paired-end reads",
         "showArgument": true
       }
     },
@@ -195,7 +246,7 @@
       "id": "pear_min_assembly_length",
       "value": {
         "default": 220,
-        "required": true,
+        "required": false,
         "type": "number",
         "visible": true
       },
@@ -204,7 +255,7 @@
       "details": {
         "argument": "--pear-min-assembly-length ",
         "description": "-m/--min-assembly-length for pear",
-        "label": "min assembly length",
+        "label": "Minimum assembly length for merged paired-end reads",
         "showArgument": true
       }
     },
@@ -220,15 +271,15 @@
       },
       "details": {
         "argument": "--vsearch-filter-maxee ",
-        "description": "max quality score",
-        "label": "maximum quality score",
+        "description": "-fastq_maxee for vsearch",
+        "label": "Maximum quality score",
         "showArgument": true
       }
     },
     {
       "id": "vsearch_filter_trunclen",
       "value": {
-        "default": 252,
+        "default": 245,
         "required": true,
         "type": "number",
         "visible": true
@@ -237,8 +288,8 @@
       },
       "details": {
         "argument": "--vsearch-filter-trunclen ",
-        "description": "truncate length",
-        "label": "vsearch truncation length",
+        "description": "-fastq_trunclen for vsearch",
+        "label": "Length to truncate your merged reads to following paired-end assembly",
         "showArgument": true
       }
     },
@@ -252,8 +303,8 @@
       },
       "details": {
         "argument": "--vsearch-derep-minuniquesize ",
-        "description": "minimum unique size for vsearch -derep_fulllength",
-        "label": "vsearch derep min unique size",
+        "description": "-minuniquesize for vsearch",
+        "label": "Minimum number of occurances of an OTU required for that OTU to be kept for clustering",
         "showArgument": true
       }
     }
