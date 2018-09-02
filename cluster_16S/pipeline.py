@@ -723,17 +723,17 @@ class Pipeline:
             elif self.paired_ends is True:
                 log.info('Concatenating from step_01_2')
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*.assembled*.fastq.gz'))
-                if self.combine_final_result is True:
+                if self.combine_final_results is True:
                     input_fps = self.concat_all_samples_for_step_06(input_fps, log)
             elif self.paired_ends is False and self.cutadapt_min_length != -1:
                 log.info('Concatenating from step_01_1')
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_1*', '*.fastq.gz'))
-                if self.combine_final_result is True:
+                if self.combine_final_results is True:
                     input_fps = self.concat_all_samples_for_step_06(input_fps, log)
             elif self.paired_ends is False and self.cutadapt_min_length == -1:
                 log.info('Concatenating from step_01_copy_and_compress')
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_01*', '*.fastq.gz'))
-                if self.combine_final_result is True:
+                if self.combine_final_results is True:
                     input_fps = self.concat_all_samples_for_step_06(input_fps, log)
             if len(input_fps) == 0:
                 raise PipelineException('found no .fastq.gz files in directory "{}"'.format(os.path.join(self.work_dir, 'step_02')))
