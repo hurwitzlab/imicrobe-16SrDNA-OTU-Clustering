@@ -16,9 +16,9 @@ import shutil
 import sys
 
 #TODO CHANGE BACK TO cluster_16S.
-from cluster_16S.pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
+from pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
     gzip_files, ungzip_files, run_cmd, PipelineException
-from cluster_16S.fasta_qual_to_fastq import fasta_qual_to_fastq
+from fasta_qual_to_fastq import fasta_qual_to_fastq
 
 
 def main():
@@ -216,7 +216,7 @@ class Pipeline:
             return output_dir_list
         if self.multiple_runs is True:
             output_dir_list.append(self.step_02_1_combine_runs(input_dir=output_dir_list[-1]))
-        if.self.combine_final_results is True:
+        if self.combine_final_results is True:
             output_dir_list.append(self.step_02_2_combine_samples(input_dir=output_dur_list[-1]))
         output_dir_list.append(self.step_03_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
         step_counter += 1
@@ -555,7 +555,7 @@ class Pipeline:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
             input_files_glob = os.path.join(input_dir, '*.fastq.gz')
             sample_fp_list = sorted(glob.glob(input_files_glob))
-             if len(sample_fp_list) == 0:
+            if len(sample_fp_list) == 0:
                 raise PipelineException('found no *.fastq.gz files in directory "{}"'.format(input_dir))
             combined_fp = get_combined_file_name(output_dir)
             with gzip.open(combined_fp, 'wt') as output_file:
@@ -824,7 +824,7 @@ class Pipeline:
             input_fps = self.concat_all_samples_for_step_06(input_fps, output_dir, log)
         return input_fps
         
-    def concat_all_samples_for_step_06(self, input_fps, output_dir log):
+    def concat_all_samples_for_step_06(self, input_fps, output_dir, log):
         log.info('Concatenating raw reads from all samples')
         log.info('Sample fps for concat_all_samples_for_step_06: "%s"', str(input_fps))
         log.info('unzipping input files')
@@ -846,7 +846,6 @@ class Pipeline:
                             pattern='\.fastq\.gz',
                             repl='')
                 with open(input_fp, 'r') as f:
-                    with open(output_fp, 'r') as out:
                     for line_ct, l in enumerate(f):
                         if line_ct % 4 == 0:
                             l = l[1:]
