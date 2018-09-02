@@ -82,6 +82,9 @@ def get_args():
     arg_parser.add_argument('--vsearch-derep-minuniquesize', required=True, type=int,
                             help='Minimum unique size for vsearch -derep_fulllength')
 
+    arg_parser.add_argument('--combine-final-results', action='store_true', default=False,
+                            help='Flag that indicates that all samples should be combined into 1 OTU table') 
+    
     args = arg_parser.parse_args()
     return args
 
@@ -99,6 +102,7 @@ def check_args(args,
             vsearch_filter_maxee, vsearch_filter_trunclen,
             vsearch_derep_minuniquesize,
             uchime_ref_db_fp,
+            combine_final_results,
             **kwargs  # allows some command line arguments to be ignored
     ):
     if not os.path.isdir(input_dir):
@@ -164,6 +168,7 @@ class Pipeline:
             vsearch_filter_maxee, vsearch_filter_trunclen,
             vsearch_derep_minuniquesize,
             uchime_ref_db_fp,
+            combine_final_results,
             **kwargs  # allows some command line arguments to be ignored
     ):
 
@@ -176,6 +181,7 @@ class Pipeline:
         self.cutadapt_min_length = cutadapt_min_length
         self.forward_primer = forward_primer
         self.reverse_primer = reverse_primer
+        self.combine_final_results = combine_final_results
 
         self.pear_min_overlap = pear_min_overlap
         self.pear_max_assembly_length = pear_max_assembly_length
@@ -210,6 +216,8 @@ class Pipeline:
             return output_dir_list
         if self.multiple_runs is True:
             output_dir_list.append(self.step_02_1_combine_runs(input_dir=output_dir_list[-1]))
+        if.self.combine_final_results is True:
+            output_dir_list.append(self.step_02_2_combine_samples(input_dir=output_dur_list[-1]))
         output_dir_list.append(self.step_03_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
         step_counter += 1
         if self.steps == step_counter:
@@ -539,13 +547,29 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
+    def step_02_2_combine_samples(self, input_dir):
+        log, output_dir = self.initialize_step()
+        if len(os.listdir(output_dir)) > 0:
+            log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
+        else:
+            log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
+            input_files_glob = os.path.join(input_dir, '*.fastq.gz')
+            sample_fp_list = sorted(glob.glob(input_files_glob))
+             if len(sample_fp_list) == 0:
+                raise PipelineException('found no *.fastq.gz files in directory "{}"'.format(input_dir))
+            combined_fp = get_combined_file_name(output_dir)
+            with gzip.open(combined_fp, 'wt') as output_file:
+                for sample_fp in sample_fp_list:
+                    with gzip.open(sample_fp, 'rt') as input_file:
+                        shutil.copyfileobj(fsrc=input_file, fdst=output_file)
+
     def step_03_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
-            input_files_glob = os.path.join(input_dir, '*.*.fastq.gz')
+            input_files_glob = os.path.join(input_dir, '*.fastq.gz')
             log.info('input file glob: "%s"', input_files_glob)
             input_fp_list = sorted(glob.glob(input_files_glob))
             if len(input_fp_list) == 0:
@@ -693,17 +717,24 @@ class Pipeline:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             otus_fp, *_ = glob.glob(os.path.join(input_dir, '*rad3.uchime.fasta'))
+            #Get raw reads from earlier steps
             if self.multiple_runs is True:
-                input_fps = self.concat_multiple_runs_for_step_07(self.work_dir, output_dir, log)
+                input_fps = self.concat_multiple_runs_for_step_06(self.work_dir, output_dir, log)
             elif self.paired_ends is True:
                 log.info('Concatenating from step_01_2')
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*.assembled*.fastq.gz'))
+                if self.combine_final_result is True:
+                    input_fps = self.concat_all_samples_for_step_06(input_fps, log)
             elif self.paired_ends is False and self.cutadapt_min_length != -1:
                 log.info('Concatenating from step_01_1')
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_01_1*', '*.fastq.gz'))
+                if self.combine_final_result is True:
+                    input_fps = self.concat_all_samples_for_step_06(input_fps, log)
             elif self.paired_ends is False and self.cutadapt_min_length == -1:
                 log.info('Concatenating from step_01_copy_and_compress')
                 input_fps = glob.glob(os.path.join(self.work_dir, 'step_01*', '*.fastq.gz'))
+                if self.combine_final_result is True:
+                    input_fps = self.concat_all_samples_for_step_06(input_fps, log)
             if len(input_fps) == 0:
                 raise PipelineException('found no .fastq.gz files in directory "{}"'.format(os.path.join(self.work_dir, 'step_02')))
             for input_fp in input_fps:
@@ -738,8 +769,6 @@ class Pipeline:
                         repl='.uchime.otutab.biom'
                     )
                 )
-                
-
                 run_cmd([
                         self.vsearch_executable_fp,
                         '--usearch_global', fasta_fp,
@@ -762,7 +791,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
-    def concat_multiple_runs_for_step_07(self, work_dir, output_dir, log):
+    def concat_multiple_runs_for_step_06(self, work_dir, output_dir, log):
         log.info('Concatenating raw reads from multiple runs')
         step_num = ''
         if self.paired_ends is True:
@@ -791,7 +820,53 @@ class Pipeline:
                     with open(sample, 'rb') as infile:
                         shutil.copyfileobj(infile, outfile) 
             input_fps.append(output_file)
+        if self.combine_final_results is True:
+            input_fps = self.concat_all_samples_for_step_06(input_fps, output_dir, log)
         return input_fps
+        
+    def concat_all_samples_for_step_06(self, input_fps, output_dir log):
+        log.info('Concatenating raw reads from all samples')
+        log.info('Sample fps for concat_all_samples_for_step_06: "%s"', str(input_fps))
+        log.info('unzipping input files')
+        uncompressed_input_fps = ungzip_files(input_fps, output_dir)
+        combined_fp = get_combined_file_name(output_dir)
+        with open(combined_fp, 'w') as combined_out:
+            for input_fp in uncompressed_input_fps:
+                input_basename = os.path.basename(input_fp)
+                input_name = re.sub(
+                            input_basename,
+                            pattern='_trimmed',
+                            repl='')
+                input_name = re.sub(
+                            input_name,
+                            pattern='_merged',
+                            repl='')
+                input_name = re.sub(
+                            input_name,
+                            pattern='\.fastq\.gz',
+                            repl='')
+                with open(input_fp, 'r') as f:
+                    with open(output_fp, 'r') as out:
+                    for line_ct, l in enumerate(f):
+                        if line_ct % 4 == 0:
+                            l = l[1:]
+                            l = '{}:{}'.format(input_name, l)
+                        combined_out.write(l)
+                os.remove(input_fp)
+        ret_arr = []
+        ret_arr.append(combined_fp)
+        return ret_arr
+                
+
+    def get_combined_file_name(self, output_dir):
+        combined_name = 'total_combined'
+        if self.cutadapt_min_length != -1:
+            combined_name = '{}_trimmed'.format(combined_name)
+        if self.paired_ends is True:
+            combined_name = '{}_assembled'.format(combined_name)
+        combined_name = '{}_ee{}_trunc{}.fastq.gz'.format(combined_name, self.vsearch_filter_maxee, self.vsearch_filter_trunclen)
+        combined_fp = os.path.join(output_dir, combined_name)
+        return combined_fp
         
 
 def get_combined_file_name(input_fp_list):
