@@ -809,7 +809,7 @@ class Pipeline:
                 )
 
                 os.remove(fasta_fp)
-                if self.multiple_runs is True:
+                if self.multiple_runs is True or self.combine_final_results is True:
                     os.remove(input_fp)
 
         self.complete_step(log, output_dir)
