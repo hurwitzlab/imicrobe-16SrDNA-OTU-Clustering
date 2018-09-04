@@ -16,9 +16,9 @@ import shutil
 import sys
 
 #TODO CHANGE BACK TO cluster_16S.
-from cluster_16S.pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
+from pipeline_util import create_output_dir, get_forward_fastq_files, get_associated_reverse_fastq_fp, \
     gzip_files, ungzip_files, run_cmd, PipelineException
-from cluster_16S.fasta_qual_to_fastq import fasta_qual_to_fastq
+from fasta_qual_to_fastq import fasta_qual_to_fastq
 
 
 def main():
@@ -217,7 +217,7 @@ class Pipeline:
         if self.multiple_runs is True:
             output_dir_list.append(self.step_02_1_combine_runs(input_dir=output_dir_list[-1]))
         if self.combine_final_results is True:
-            output_dir_list.append(self.step_02_2_combine_samples(input_dir=output_dur_list[-1]))
+            output_dir_list.append(self.step_02_2_combine_samples(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_03_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
         step_counter += 1
         if self.steps == step_counter:
@@ -555,13 +555,17 @@ class Pipeline:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
             input_files_glob = os.path.join(input_dir, '*.fastq.gz')
             sample_fp_list = sorted(glob.glob(input_files_glob))
+            log.info('file list: {}'.format(sample_fp_list))
             if len(sample_fp_list) == 0:
                 raise PipelineException('found no *.fastq.gz files in directory "{}"'.format(input_dir))
-            combined_fp = get_combined_file_name(output_dir)
+            combined_fp = '{}.fastq.gz'.format(self.get_combined_file_name(output_dir))
+            log.info('combining into "{}"'.format(combined_fp))
             with gzip.open(combined_fp, 'wt') as output_file:
                 for sample_fp in sample_fp_list:
                     with gzip.open(sample_fp, 'rt') as input_file:
                         shutil.copyfileobj(fsrc=input_file, fdst=output_file)
+            self.complete_step(log, output_dir)
+            return output_dir
 
     def step_03_dereplicate_sort_remove_low_abundance_reads(self, input_dir):
         log, output_dir = self.initialize_step()
@@ -737,13 +741,17 @@ class Pipeline:
                     input_fps = self.concat_all_samples_for_step_06(input_fps, log)
             if len(input_fps) == 0:
                 raise PipelineException('found no .fastq.gz files in directory "{}"'.format(os.path.join(self.work_dir, 'step_02')))
+            log.info('input_fps: {}'.format(input_fps))
             for input_fp in input_fps:
-                fasta_fp = os.path.join(
-                    output_dir,
-                    re.sub(
-                        string=os.path.basename(input_fp),
-                        pattern='\.fastq\.gz',
-                        repl='.fasta'))
+                fasta_name = re.sub(
+                                string=os.path.basename(input_fp),
+                                pattern='\.fastq',
+                                repl='.fasta')
+                fasta_name = re.sub(
+                                string=fasta_name,
+                                pattern='\.gz$',
+                                repl='')
+                fasta_fp = os.path.join(output_dir, fasta_name)
                 log.info('convert fastq file\n\t%s\nto fasta file\n\t%s', input_fp, fasta_fp)
                 run_cmd([
                     self.vsearch_executable_fp,
@@ -757,16 +765,32 @@ class Pipeline:
                     output_dir,
                     re.sub(
                         string=os.path.basename(input_fp),
-                        pattern='\.fastq\.gz$',
+                        pattern='\.fastq',
                         repl='.uchime.otutab.txt'
+                    )
+                )
+                otu_table_fp = os.path.join(
+                    output_dir,
+                    re.sub(
+                        string=otu_table_fp,
+                        pattern='\.gz$',
+                        repl=''
                     )
                 )
                 otu_table_biom_fp = os.path.join(
                     output_dir,
                     re.sub(
                         string=os.path.basename(input_fp),
-                        pattern='\.fastq\.gz$',
+                        pattern='\.fastq',
                         repl='.uchime.otutab.biom'
+                    )
+                )
+                otu_table_biom_fp = os.path.join(
+                    output_dir,
+                    re.sub(
+                        string=otu_table_biom_fp,
+                        pattern='\.gz$',
+                        repl=''
                     )
                 )
                 run_cmd([
@@ -828,34 +852,43 @@ class Pipeline:
         log.info('Concatenating raw reads from all samples')
         log.info('Sample fps for concat_all_samples_for_step_06: "%s"', str(input_fps))
         log.info('unzipping input files')
-        uncompressed_input_fps = ungzip_files(input_fps, output_dir)
-        combined_fp = get_combined_file_name(output_dir)
+        uncompressed_input_fps = ungzip_files(*input_fps, target_dir=output_dir)
+        if self.multiple_runs is True:
+            for i in input_fps:
+                os.remove(i)
+        log.info('uncompressed file list: "{}"'.format(uncompressed_input_fps))
+        combined_fp = '{}.fastq'.format(self.get_combined_file_name(output_dir))
         with open(combined_fp, 'w') as combined_out:
             for input_fp in uncompressed_input_fps:
                 input_basename = os.path.basename(input_fp)
                 input_name = re.sub(
-                            input_basename,
+                            string=input_basename,
                             pattern='_trimmed',
                             repl='')
                 input_name = re.sub(
-                            input_name,
+                            string=input_name,
                             pattern='_merged',
                             repl='')
                 input_name = re.sub(
-                            input_name,
-                            pattern='\.fastq\.gz',
+                            string=input_name,
+                            pattern='\.fastq$',
                             repl='')
+                if self.multiple_runs is True:
+                    input_name = re.sub(
+                                string=input_name,
+                                pattern='_concat_runs',
+                                repl='')
                 with open(input_fp, 'r') as f:
                     for line_ct, l in enumerate(f):
                         if line_ct % 4 == 0:
+                            pass
                             l = l[1:]
-                            l = '{}:{}'.format(input_name, l)
+                            l = '@{}:{}'.format(input_name, l)
                         combined_out.write(l)
                 os.remove(input_fp)
         ret_arr = []
         ret_arr.append(combined_fp)
         return ret_arr
-                
 
     def get_combined_file_name(self, output_dir):
         combined_name = 'total_combined'
@@ -863,29 +896,10 @@ class Pipeline:
             combined_name = '{}_trimmed'.format(combined_name)
         if self.paired_ends is True:
             combined_name = '{}_assembled'.format(combined_name)
-        combined_name = '{}_ee{}_trunc{}.fastq.gz'.format(combined_name, self.vsearch_filter_maxee, self.vsearch_filter_trunclen)
+        combined_name = '{}_ee{}_trunc{}'.format(combined_name, self.vsearch_filter_maxee, self.vsearch_filter_trunclen)
         combined_fp = os.path.join(output_dir, combined_name)
         return combined_fp
         
-
-def get_combined_file_name(input_fp_list):
-    if len(input_fp_list) == 0:
-        raise PipelineException('get_combined_file_name called with empty input')
-
-    def sorted_unique_elements(elements):
-        return sorted(set(elements))
-
-    return '_'.join(  # 'Mock_Run3_Run4_V4.fastq.gz'
-        itertools.chain.from_iterable(  # ['Mock', 'Run3', 'Run4', 'V4.fastq.gz']
-            map(  # [{'Mock'}, {'Run3', 'Run4'}, {'V4.fastq.gz'}]
-                sorted_unique_elements,
-                zip(  # [('Mock', 'Mock'), ('Run4', 'Run3'), ('V4.fastq.gz', 'V4.fastq.gz')]
-                    *[  # [('Mock', 'Run3', 'V4.fastq.gz'), ('Mock', 'Run4', 'V4.fastq.gz')]
-                        os.path.basename(fp).split('_')  # ['Mock', 'Run3', 'V4.fastq.gz']
-                        for fp  # '/some/data/Mock_Run3_V4.fastq.gz'
-                        in input_fp_list  # ['/input/data/Mock_Run3_V4.fastq.gz', '/input_data/Mock_Run4_V4.fastq.gz']
-                    ]))))
-
 
 if __name__ == '__main__':
     main()
