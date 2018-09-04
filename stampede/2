@@ -1,9 +1,10 @@
 {
   "name": "16s_cluster test-1535494624",
   "appId": "16s_cluster-0.0.1",
-  "archive": false,
+  "archive": true,
   "inputs": {
-    "INPUT_DIR": "/mattmiller899/16S_data_in"
+    "INPUT_DIR": "/mattmiller899/16S_data_in",
+    "WORK_DIR": "/mattmiller899/16S_data_out"
   },
   "parameter": {
     "vsearch_filter_maxee": 1,
@@ -12,10 +13,8 @@
     "paired_ends": true,
     "multiple_runs": true,
     "pear_min_overlap": 10,
-    "pear_max_assembly_length": 500,
-    "pear_min_assembly_length": 220,
-    "steps": 6,
-    "cutadapt_min_length": 100,
-    "debug": true
+    "pear_max_assembly_length": 270,
+    "pear_min_assembly_length": 210,
+    
   }
 }

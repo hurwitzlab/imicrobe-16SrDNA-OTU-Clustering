@@ -90,6 +90,7 @@ def ungzip_files(*fp_list, target_dir):
     for fp in fp_list:
         # remove '.gz' from the file path
         uncompressed_fp = os.path.join(target_dir, os.path.basename(fp)[:-3])
+        print('unzipping {} into {}'.format(fp, uncompressed_fp))
         uncompressed_fps.append(uncompressed_fp)
         with gzip.open(fp, 'rt') as src, open(uncompressed_fp, 'wt') as dst:
             shutil.copyfileobj(fsrc=src, fdst=dst)
