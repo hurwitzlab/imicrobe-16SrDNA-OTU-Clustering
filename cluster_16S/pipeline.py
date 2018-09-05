@@ -279,10 +279,15 @@ class Pipeline:
         else:
             log.debug('output_dir: %s', output_dir)
             # Check for fasta and qual files
-            fasta_file_glob = os.path.join(input_dir, '*fasta*')
+            fasta_files = []
+            types = ['*.fasta*', '*.fa*']
+            for t in types:
+                fasta_files.extend(glob.glob(os.path.join(input_dir, t)))
+            fasta_files = sorted(fasta_files)
+            log.info('fasta files: "%s"', fasta_files)
             qual_file_glob = os.path.join(input_dir, '*.qual*')
-            fasta_files = sorted(glob.glob(fasta_file_glob))
             qual_files = sorted(glob.glob(qual_file_glob))
+            log.info('qual files: "%s"', qual_files)
             fastas_no_slashes = [fasta.replace('\\', ' ').replace('/', ' ').split()[-1] for fasta in fasta_files]
             quals_no_slashes = [qual.replace('\\', ' ').replace('/', ' ').split()[-1] for qual in qual_files]
             fastas = [fasta.split(".")[0] for fasta in fastas_no_slashes]
@@ -298,8 +303,10 @@ class Pipeline:
                         log.info('%s created', tmpfastq)
                         quals.remove(qual)
                         break
-            input_file_glob = os.path.join(input_dir, '*.fastq*')
-            log.debug('input_file_glob: %s', input_file_glob)
+            input_fp_list = []
+            types = ['*.fastq*', '*.fq*']
+            for t in types:
+                input_fp_list.extend(glob.glob(os.path.join(input_dir, t)))
             input_fp_list = sorted(glob.glob(input_file_glob))
             log.info('input files: %s', input_fp_list)
 
@@ -307,7 +314,11 @@ class Pipeline:
                 raise PipelineException('found no fastq files in directory "{}"'.format(input_dir))
 
             for input_fp in input_fp_list:
-                destination_fp = os.path.join(output_dir, os.path.basename(input_fp))
+                destination_name = re.sub(
+                                        string=os.path.basename(input_fp),
+                                        pattern='\.fq',
+                                        repl='.fastq')
+                destination_fp = os.path.join(output_dir, destination_name)
                 if input_fp.endswith('.gz'):
                     with open(input_fp, 'rb') as f, open(destination_fp, 'wb') as g:
                         shutil.copyfileobj(fsrc=f, fdst=g)
