@@ -124,7 +124,7 @@ def check_args(args,
             combine_final_results,
             **kwargs  # allows some command line arguments to be ignored
     ):
-    IUPAC_chars = set('ACTGURYSWKMBDHVN.-')
+    IUPAC_chars = set('ACTGURYSWKMBDHVN.- ')
     if not os.path.isdir(input_dir):
         print("{} is not a directory".format(input_dir), file=sys.stderr)
         exit()
@@ -162,16 +162,16 @@ def check_args(args,
     if paired_ends is True and ((cutadapt_5prime_adapter_file_forward is "" and cutadapt_5prime_adapter_file_reverse is not "") or (cutadapt_5prime_adapter_file_forward is not "" and cutadapt_5prime_adapter_file_reverse is "")):
         print("Paired ends is selected and only one 5\' adapter file is passed. You most likely forgot to include the other 5\' adapter file", file=sys.stderr)
         exit()
-    if forward_primer_3prime is not "" and any((c not in forward_primer_3prime) for c in IUPAC_chars):
+    if forward_primer_3prime is not "" and any((c not in IUPAC_chars) for c in forward_primer_3prime):
         print("Non-IUPAC characters found in forward_primer_3prime {}".format(forward_primer_3prime), file=sys.stderr)
         exit()
-    if reverse_primer_3prime is not "" and any((c not in reverse_primer_3prime) for c in IUPAC_chars):
+    if reverse_primer_3prime is not "" and any((c not in IUPAC_chars) for c in forward_primer_5prime):
         print("Non-IUPAC characters found in reverse_primer_3prime {}".format(reverse_primer_3prime), file=sys.stderr)
         exit()
-    if forward_primer_5prime is not "" and any((c not in forward_primer_5prime) for c in IUPAC_chars):
+    if forward_primer_5prime is not "" and any((c not in IUPAC_chars) for c in forward_primer_5prime):
         print("Non-IUPAC characters found in forward_primer_5prime {}".format(forward_primer_5prime), file=sys.stderr)
         exit()
-    if reverse_primer_5prime is not "" and any((c not in reverse_primer_5prime) for c in IUPAC_chars):
+    if reverse_primer_5prime is not "" and any((c not in IUPAC_chars) for c in reverse_primer_5prime):
         print("Non-IUPAC characters found in reverse_primer_5prime {}".format(reverse_primer_5prime), file=sys.stderr)
         exit()
     if pear_min_overlap <= 0:
