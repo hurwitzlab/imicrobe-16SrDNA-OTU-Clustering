@@ -61,7 +61,7 @@ def get_args():
     arg_parser.add_argument('--forward-primer-5prime', default='',
                             help='5\' adapter to be clipped by cutadapt')
 
-    arg_parser.add_argument('--reverse-primer-5prime', default='TTACCGCGGCKGCTGGCAC',
+    arg_parser.add_argument('--reverse-primer-5prime', default='',
                             help='5\' adapter to be clipped by cutadapt from second (R2) paired-end file')
 
     arg_parser.add_argument('--uchime-ref-db-fp', default='/app/silva/SILVA_132_SSURef_Nr99_tax_silva.fasta.gz',
@@ -388,9 +388,9 @@ class Pipeline:
                 else:
                     cmd_str = "{}-A {} ".format(cmd_str, self.reverse_primer_3prime)
                 if self.cutadapt_5prime_adapter_file_reverse is not "":
-                    cmd_str = "{}-G {} ".format(cmd_str, self.cutadapt_5prime_adapter_file_reverse)
+                    cmd_str = "{}-G file:{} ".format(cmd_str, self.cutadapt_5prime_adapter_file_reverse)
                 elif self.reverse_primer_5prime is not "":
-                    cmd_str = "{}-G file:{} ".format(cmd_str, self.reverse_primer_5prime)
+                    cmd_str = "{}-G {} ".format(cmd_str, self.reverse_primer_5prime)
             cmd_str = "{} -m {} ".format(cmd_str, str(self.cutadapt_min_length))
             cmd_str = "{} -j {} ".format(cmd_str, str(self.cutadapt_min_length))
 
