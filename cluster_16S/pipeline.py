@@ -132,10 +132,10 @@ def check_args(args,
     if cutadapt_min_length < -1 or cutadapt_min_length == 0:
         print("Invalid value for --cutadapt-min-length")
         exit()
-    if cutadapt_adapter_file_forward is not "" and os.path.isfile(cutadapt_adapter_file_forward):
+    if cutadapt_adapter_file_forward is not "" and not os.path.isfile(cutadapt_adapter_file_forward):
         print("{} is not a file".format(cutadapt_adapter_file_forward))
         exit()
-    if cutadapt_adapter_file_reverse is not "" and os.path.isfile(cutadapt_adapter_file_reverse):
+    if cutadapt_adapter_file_reverse is not "" and not os.path.isfile(cutadapt_adapter_file_reverse):
         print("{} is not a file".format(cutadapt_adapter_file_reverse))
         exit()
     if paired_ends is True and ((cutadapt_adapter_file_forward is "" and cutadapt_adapter_file_reverse is not "") or (cutadapt_adapter_file_forward is not "" and cutadapt_adapter_file_reverse is "")):
@@ -362,7 +362,7 @@ class Pipeline:
                             debug=self.debug
                         )
                     else:
-                        log.info('using adapters from file "%s" and "%s"', self.cutadapt_adapter_file_forward, self.cutadapt_file_reverse)
+                        log.info('using adapters from file "%s" and "%s"', self.cutadapt_adapter_file_forward, self.cutadapt_adapter_file_reverse)
                         run_cmd([
                             self.cutadapt_executable_fp,
                             '-a', 'file:{}'.format(self.cutadapt_adapter_file_forward),
@@ -382,7 +382,37 @@ class Pipeline:
                 input_file_list = glob.glob(input_files_glob)
                 for input_file in input_file_list:
                     log.info('removing forward primers from file "%s"', input_file)
-                   
+                    input_basename = os.path.basename(input_file)
+                    trimmed_fastq_fp = os.path.join(
+                                                output_dir,
+                                                re.sub(
+                                                    string=input_basename,
+                                                    pattern='\.fastq\.gz$',
+                                                    repl='_trimmed_.fastq.gz'))
+                    if self.cutadapt_adapter_file_forward is not "":
+                        run_cmd([
+                            self.cutadapt_executable_fp,
+                            '-a', 'file:{}'.format(self.cutadapt_adapter_file_forward),
+                            '-o', trimmed_fastq_fp,
+                            '-m', str(self.cutadapt_min_length),
+                            '-j', str(self.core_count),
+                            input_file
+                        ],
+                            log_file=os.path.join(output_dir, 'log'),
+                            debug=self.debug
+                        )
+                    else:
+                        run_cmd([
+                            self.cutadapt_executable_fp,
+                            '-a', self.forward_primer,
+                            '-o', trimmed_fastq_fp,
+                            '-m', str(self.cutadapt_min_length),
+                            '-j', str(self.core_count),
+                            input_file
+                        ],
+                            log_file=os.path.join(output_dir, 'log'),
+                            debug=self.debug
+                        )
 
 
         self.complete_step(log, output_dir)
