@@ -124,7 +124,7 @@ def check_args(args,
             combine_final_results,
             **kwargs  # allows some command line arguments to be ignored
     ):
-    IUPAC_chars = set('ACTGURYSWKMBDHVN.- ')
+    IUPAC_chars = set('ACTGURYSWKMBDHVN.-')
     if not os.path.isdir(input_dir):
         print("{} is not a directory".format(input_dir), file=sys.stderr)
         exit()
