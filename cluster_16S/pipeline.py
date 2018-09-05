@@ -393,6 +393,7 @@ class Pipeline:
                     cmd_str = "{}-G {} ".format(cmd_str, self.reverse_primer_5prime)
             cmd_str = "{} -m {} ".format(cmd_str, str(self.cutadapt_min_length))
             cmd_str = "{} -j {} ".format(cmd_str, str(self.cutadapt_min_length))
+            cmd_str_arr = cmd_str.split(cmd_str)
 
             if self.paired_ends is True:
                 for forward_fastq_fp in get_forward_fastq_files(input_dir=input_dir, debug=self.debug):
@@ -413,7 +414,7 @@ class Pipeline:
                             pattern='\.fastq\.gz$',
                             repl='_trimmed.fastq.gz'))
                     run_cmd([
-                            cmd_str,
+                            *cmd_str_arr,
                             '-o', trimmed_forward_fastq_fp,
                             '-p', trimmed_reverse_fastq_fp,
                             forward_fastq_fp,
@@ -435,7 +436,7 @@ class Pipeline:
                                                     pattern='\.fastq\.gz$',
                                                     repl='_trimmed.fastq.gz'))
                     run_cmd([
-                        cmd_str,
+                        *cmd_str_arr,
                         '-o', trimmed_fastq_fp,
                         input_file
                     ],
