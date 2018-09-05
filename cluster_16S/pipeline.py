@@ -307,7 +307,6 @@ class Pipeline:
             types = ['*.fastq*', '*.fq*']
             for t in types:
                 input_fp_list.extend(glob.glob(os.path.join(input_dir, t)))
-            input_fp_list = sorted(glob.glob(input_file_glob))
             log.info('input files: %s', input_fp_list)
 
             if len(input_fp_list) == 0:
