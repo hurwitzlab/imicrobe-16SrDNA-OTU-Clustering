@@ -116,7 +116,7 @@ def check_args(args,
             debug,
             cutadapt_min_length,
             cutadapt_3prime_adapter_file_forward, cutadapt_3prime_adapter_file_reverse, cutadapt_5prime_adapter_file_forward, cutadapt_5prime_adapter_file_reverse,
-            forward_primer_3primer, reverse_primer_3primer, forward_primer_5primer, reverse_primer_5primer,
+            forward_primer_3prime, reverse_primer_3prime, forward_primer_5prime, reverse_primer_5prime,
             pear_min_overlap, pear_max_assembly_length, pear_min_assembly_length,
             vsearch_filter_maxee, vsearch_filter_trunclen,
             vsearch_derep_minuniquesize,
@@ -162,17 +162,17 @@ def check_args(args,
     if paired_ends is True and ((cutadapt_5prime_adapter_file_forward is "" and cutadapt_5prime_adapter_file_reverse is not "") or (cutadapt_5prime_adapter_file_forward is not "" and cutadapt_5prime_adapter_file_reverse is "")):
         print("Paired ends is selected and only one 5\' adapter file is passed. You most likely forgot to include the other 5\' adapter file", file=sys.stderr)
         exit()
-    if forward_primer_3primer is not "" and any((c not in forward_primer_3primer) for c in IUPAC_chars):
-        print("Non-IUPAC characters found in forward_primer_3primer {}".format(forward_primer_3primer), file=sys.stderr)
+    if forward_primer_3prime is not "" and any((c not in forward_primer_3prime) for c in IUPAC_chars):
+        print("Non-IUPAC characters found in forward_primer_3prime {}".format(forward_primer_3prime), file=sys.stderr)
         exit()
-    if reverse_primer_3primer is not "" and any((c not in reverse_primer_3primer) for c in IUPAC_chars):
-        print("Non-IUPAC characters found in reverse_primer_3primer {}".format(reverse_primer_3primer), file=sys.stderr)
+    if reverse_primer_3prime is not "" and any((c not in reverse_primer_3prime) for c in IUPAC_chars):
+        print("Non-IUPAC characters found in reverse_primer_3prime {}".format(reverse_primer_3prime), file=sys.stderr)
         exit()
-    if forward_primer_5primer is not "" and any((c not in forward_primer_5primer) for c in IUPAC_chars):
-        print("Non-IUPAC characters found in forward_primer_5primer {}".format(forward_primer_5primer), file=sys.stderr)
+    if forward_primer_5prime is not "" and any((c not in forward_primer_5prime) for c in IUPAC_chars):
+        print("Non-IUPAC characters found in forward_primer_5prime {}".format(forward_primer_5prime), file=sys.stderr)
         exit()
-    if reverse_primer_5primer is not "" and any((c not in reverse_primer_5primer) for c in IUPAC_chars):
-        print("Non-IUPAC characters found in reverse_primer_5primer {}".format(reverse_primer_5primer), file=sys.stderr)
+    if reverse_primer_5prime is not "" and any((c not in reverse_primer_5prime) for c in IUPAC_chars):
+        print("Non-IUPAC characters found in reverse_primer_5prime {}".format(reverse_primer_5prime), file=sys.stderr)
         exit()
     if pear_min_overlap <= 0:
         print("Invalid value for --pear-min-overlap", file=sys.stderr)
@@ -214,7 +214,7 @@ class Pipeline:
             debug,
             cutadapt_min_length,
             cutadapt_3prime_adapter_file_forward, cutadapt_3prime_adapter_file_reverse, cutadapt_5prime_adapter_file_forward, cutadapt_5prime_adapter_file_reverse,
-            forward_primer_3primer, reverse_primer_3primer, forward_primer_5primer, reverse_primer_5primer,
+            forward_primer_3prime, reverse_primer_3prime, forward_primer_5prime, reverse_primer_5prime,
             pear_min_overlap, pear_max_assembly_length, pear_min_assembly_length,
             vsearch_filter_maxee, vsearch_filter_trunclen,
             vsearch_derep_minuniquesize,
@@ -234,10 +234,10 @@ class Pipeline:
         self.cutadapt_3prime_adapter_file_reverse = cutadapt_3prime_adapter_file_reverse
         self.cutadapt_5prime_adapter_file_forward = cutadapt_5prime_adapter_file_forward
         self.cutadapt_5prime_adapter_file_reverse = cutadapt_5prime_adapter_file_reverse
-        self.forward_primer_3primer = forward_primer_3primer
-        self.reverse_primer_3primer = reverse_primer_3primer
-        self.forward_primer_5primer = forward_primer_5primer
-        self.reverse_primer_5primer = reverse_primer_5primer
+        self.forward_primer_3prime = forward_primer_3prime
+        self.reverse_primer_3prime = reverse_primer_3prime
+        self.forward_primer_5prime = forward_primer_5prime
+        self.reverse_primer_5prime = reverse_primer_5prime
         self.combine_final_results = combine_final_results
 
         self.pear_min_overlap = pear_min_overlap
@@ -377,20 +377,20 @@ class Pipeline:
             if self.cutadapt_3prime_adapter_file_forward is not "":
                 cmd_str = "{}-a file:{} ".format(cmd_str, self.cutadapt_3prime_adapter_file_forward)
             else:
-                cmd_str = "{}-a {} ".format(cmd_str, self.forward_primer_3primer)
+                cmd_str = "{}-a {} ".format(cmd_str, self.forward_primer_3prime)
             if self.cutadapt_5prime_adapter_file_forward is not "":
                 cmd_str = "{}-g file:{} ".format(cmd_str, self.cutadapt_5prime_adapter_file_forward)
-            elif self.forward_primer_5primer is not "":
-                cmd_str = "{}-g {} ".format(cmd_str, self.forward_primer_5primer)
+            elif self.forward_primer_5prime is not "":
+                cmd_str = "{}-g {} ".format(cmd_str, self.forward_primer_5prime)
             if self.paired_ends is True:
                 if self.cutadapt_3prime_adapter_file_reverse is not "":
                     cmd_str = "{}-A file:{} ".format(cmd_str, self.cutadapt_3prime_adapter_file_reverse)
                 else:
-                    cmd_str = "{}-A {} ".format(cmd_str, self.reverse_primer_3primer)
+                    cmd_str = "{}-A {} ".format(cmd_str, self.reverse_primer_3prime)
                 if self.cutadapt_5prime_adapter_file_reverse is not "":
                     cmd_str = "{}-G {} ".format(cmd_str, self.cutadapt_5prime_adapter_file_reverse)
-                elif self.reverse_primer_5primer is not "":
-                    cmd_str = "{}-G file:{} ".format(cmd_str, self.reverse_primer_5primer)
+                elif self.reverse_primer_5prime is not "":
+                    cmd_str = "{}-G file:{} ".format(cmd_str, self.reverse_primer_5prime)
             cmd_str = "{} -m {} ".format(cmd_str, str(self.cutadapt_min_length))
             cmd_str = "{} -j {} ".format(cmd_str, str(self.cutadapt_min_length))
 
