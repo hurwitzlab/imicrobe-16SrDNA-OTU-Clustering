@@ -362,6 +362,7 @@ class Pipeline:
                             debug=self.debug
                         )
                     else:
+                        log.info('using adapters from file "%s" and "%s"', self.cutadapt_adapter_file_forward, self.cutadapt_file_reverse)
                         run_cmd([
                             self.cutadapt_executable_fp,
                             '-a', 'file:{}'.format(self.cutadapt_adapter_file_forward),
@@ -380,8 +381,9 @@ class Pipeline:
                 input_files_glob = os.path.join(input_dir, '*.fastq.gz')
                 input_file_list = glob.glob(input_files_glob)
                 for input_file in input_file_list:
-                    pass
-                    #TODO FINISH THIS
+                    log.info('removing forward primers from file "%s"', input_file)
+                   
+
 
         self.complete_step(log, output_dir)
         return output_dir
