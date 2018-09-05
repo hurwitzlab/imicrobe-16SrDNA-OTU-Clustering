@@ -114,13 +114,13 @@ def check_args(args,
             **kwargs  # allows some command line arguments to be ignored
     ):
     if not os.path.isdir(input_dir):
-        print("{} is not a directory".format(input_dir))
+        print("{} is not a directory".format(input_dir), file=sys.stderr)
         exit()
     if len(os.listdir(input_dir)) == 0:
-        print("{} is empty".format(input_dir))
+        print("{} is empty".format(input_dir), file=sys.stderr)
         exit()
     if len([f for f in os.listdir(input_dir) if os.path.isfile(f)]) % 2 == 1:
-        print("Odd number of input files in {}. Please check to make sure there are no missing paired-end or run files".format(input_dir))
+        print("Odd number of input files in {}. Please check to make sure there are no missing paired-end or run files".format(input_dir), file=sys.stderr)
         exit()
     if work_dir == "":
         args.work_dir = "{}/output".format(input_dir)
@@ -130,43 +130,43 @@ def check_args(args,
         print("Bad number of cores")
         exit()
     if cutadapt_min_length < -1 or cutadapt_min_length == 0:
-        print("Invalid value for --cutadapt-min-length")
+        print("Invalid value for --cutadapt-min-length", file=sys.stderr)
         exit()
     if cutadapt_adapter_file_forward is not "" and not os.path.isfile(cutadapt_adapter_file_forward):
-        print("{} is not a file".format(cutadapt_adapter_file_forward))
+        print("{} is not a file".format(cutadapt_adapter_file_forward), file=sys.stderr)
         exit()
     if cutadapt_adapter_file_reverse is not "" and not os.path.isfile(cutadapt_adapter_file_reverse):
-        print("{} is not a file".format(cutadapt_adapter_file_reverse))
+        print("{} is not a file".format(cutadapt_adapter_file_reverse), file=sys.stderr)
         exit()
     if paired_ends is True and ((cutadapt_adapter_file_forward is "" and cutadapt_adapter_file_reverse is not "") or (cutadapt_adapter_file_forward is not "" and cutadapt_adapter_file_reverse is "")):
-        print("Paired ends is selected and only one adapter file is passed. You most likely forgot to include the other adapter file")
+        print("Paired ends is selected and only one adapter file is passed. You most likely forgot to include the other adapter file", file=sys.stderr)
         exit()
     if pear_min_overlap <= 0:
-        print("Invalid value for --pear-min-overlap")
+        print("Invalid value for --pear-min-overlap", file=sys.stderr)
         exit()
     if pear_max_assembly_length <= 0:
-        print("Invalid value for --pear-max-assembly-length")
+        print("Invalid value for --pear-max-assembly-length", file=sys.stderr)
         exit()
     if pear_min_assembly_length <= 0:
-        print("Invalid value for --pear-min-assembly-length")
+        print("Invalid value for --pear-min-assembly-length", file=sys.stderr)
         exit()
     if pear_min_assembly_length > pear_max_assembly_length:
-        print("--pear-min-assembly-length can't be greater than --pear-max-assembly-length")
+        print("--pear-min-assembly-length can't be greater than --pear-max-assembly-length", file=sys.stderr)
         exit()
     if vsearch_filter_maxee < 0:
-        print("Invalid value for --vsearch-filter-maxee")
+        print("Invalid value for --vsearch-filter-maxee", file=sys.stderr)
         exit()
     if vsearch_filter_trunclen <= 0:
-        print("Invalid value for --vesearch-filter-trunclen")
+        print("Invalid value for --vesearch-filter-trunclen", file=sys.stderr)
         exit()
     if vsearch_derep_minuniquesize < 0:
-        print("Invalid value for --vsearch-derep-minuniquesize")
+        print("Invalid value for --vsearch-derep-minuniquesize", file=sys.stderr)
         exit()
     if not os.path.isfile(uchime_ref_db_fp):
-        print("{} is not a valid file path".format(uchime_ref_db_fp))
+        print("{} is not a valid file path".format(uchime_ref_db_fp), file=sys.stderr)
         exit()
     if steps < 1:
-        print("Invalid value for --steps")
+        print("Invalid value for --steps", file=sys.stderr)
         exit()
     return args
  
