@@ -388,7 +388,7 @@ class Pipeline:
                                                 re.sub(
                                                     string=input_basename,
                                                     pattern='\.fastq\.gz$',
-                                                    repl='_trimmed_.fastq.gz'))
+                                                    repl='_trimmed.fastq.gz'))
                     if self.cutadapt_adapter_file_forward is not "":
                         run_cmd([
                             self.cutadapt_executable_fp,
