@@ -64,6 +64,12 @@ def get_args():
     arg_parser.add_argument('--cutadapt-min-length', type=int, default=-1,
                             help='Min_length for cutadapt, filling this in indicates that there are primers/adadpters to be removed and cutadapt will be used')
 
+    arg_parser.add_argument('--cutadapt-adapter-file-forward', default="",
+                            help='path to the file containing all forward adapters in your samples')
+
+    arg_parser.add_argument('--cutadapt-adapter-file-reverse', default="",
+                            help='path to the file containing all reverse adapters in your samples')
+
     arg_parser.add_argument('--pear-min-overlap', required=False, type=int, default=10,
                             help='-v/--min-overlap for pear')
     
@@ -97,6 +103,8 @@ def check_args(args,
             steps,
             debug,
             cutadapt_min_length,
+            cutadapt_adapter_file_forward,
+            cutadapt_adapter_file_reverse,
             forward_primer, reverse_primer,
             pear_min_overlap, pear_max_assembly_length, pear_min_assembly_length,
             vsearch_filter_maxee, vsearch_filter_trunclen,
@@ -123,6 +131,15 @@ def check_args(args,
         exit()
     if cutadapt_min_length < -1 or cutadapt_min_length == 0:
         print("Invalid value for --cutadapt-min-length")
+        exit()
+    if cutadapt_adapter_file_forward is not "" and os.path.isfile(cutadapt_adapter_file_forward):
+        print("{} is not a file".format(cutadapt_adapter_file_forward))
+        exit()
+    if cutadapt_adapter_file_reverse is not "" and os.path.isfile(cutadapt_adapter_file_reverse):
+        print("{} is not a file".format(cutadapt_adapter_file_reverse))
+        exit()
+    if paired_ends is True and ((cutadapt_adapter_file_forward is "" and cutadapt_adapter_file_reverse is not "") or (cutadapt_adapter_file_forward is not "" and cutadapt_adapter_file_reverse is "")):
+        print("Paired ends is selected and only one adapter file is passed. You most likely forgot to include the other adapter file")
         exit()
     if pear_min_overlap <= 0:
         print("Invalid value for --pear-min-overlap")
@@ -163,6 +180,8 @@ class Pipeline:
             steps,
             debug,
             cutadapt_min_length,
+            cutadapt_adapter_file_forward,
+            cutadapt_adapter_file_reverse,
             forward_primer, reverse_primer,
             pear_min_overlap, pear_max_assembly_length, pear_min_assembly_length,
             vsearch_filter_maxee, vsearch_filter_trunclen,
@@ -179,6 +198,8 @@ class Pipeline:
         self.steps = steps
         self.debug = debug
         self.cutadapt_min_length = cutadapt_min_length
+        self.cutadapt_adapter_file_forward = cutadapt_adapter_file_forward
+        self.cutadapt_adapter_file_reverse = cutadapt_adapter_file_reverse
         self.forward_primer = forward_primer
         self.reverse_primer = reverse_primer
         self.combine_final_results = combine_final_results
@@ -305,43 +326,64 @@ class Pipeline:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('using cutadapt "%s"', self.cutadapt_executable_fp)
+            if self.paired_ends is True:
+                for forward_fastq_fp in get_forward_fastq_files(input_dir=input_dir, debug=self.debug):
+                    log.info('removing forward primers from file "%s"', forward_fastq_fp)
+                    forward_fastq_basename = os.path.basename(forward_fastq_fp)
 
-            for forward_fastq_fp in get_forward_fastq_files(input_dir=input_dir, debug=self.debug):
-                log.info('removing forward primers from file "%s"', forward_fastq_fp)
-                forward_fastq_basename = os.path.basename(forward_fastq_fp)
+                    reverse_fastq_fp = get_associated_reverse_fastq_fp(forward_fp=forward_fastq_fp)
+                    log.info('removing reverse primers from file "%s"', reverse_fastq_fp)
 
-                reverse_fastq_fp = get_associated_reverse_fastq_fp(forward_fp=forward_fastq_fp)
-                log.info('removing reverse primers from file "%s"', reverse_fastq_fp)
+                    trimmed_forward_fastq_fp = os.path.join(
+                        output_dir,
+                        re.sub(
+                            string=forward_fastq_basename,
+                            pattern='_([0R])1',
+                            repl=lambda m: '_trimmed_{}1'.format(m.group(1))))
+                    trimmed_reverse_fastq_fp = os.path.join(
+                        output_dir,
+                        re.sub(
+                            string=forward_fastq_basename,
+                            pattern='_([0R])1',
+                            repl=lambda m: '_trimmed_{}2'.format(m.group(1))))
+                    if self.cutadapt_adapter_file_forward is "":
+                        run_cmd([
+                                self.cutadapt_executable_fp,
+                                '-a', self.forward_primer,
+                                '-A', self.reverse_primer,
+                                '-o', trimmed_forward_fastq_fp,
+                                '-p', trimmed_reverse_fastq_fp,
+                                '-m', str(self.cutadapt_min_length),
+                                '-j', str(self.core_count),
+                                forward_fastq_fp,
+                                reverse_fastq_fp
+                            ],
+                            log_file = os.path.join(output_dir, 'log'),
+                            debug=self.debug
+                        )
+                    else:
+                        run_cmd([
+                            self.cutadapt_executable_fp,
+                            '-a', 'file:{}'.format(self.cutadapt_adapter_file_forward),
+                            '-A', 'file:{}'.format(self.cutadapt_adapter_file_reverse),
+                            '-o', trimmed_forward_fastq_fp,
+                            '-p', trimmed_reverse_fastq_fp,
+                            '-m', str(self.cutadapt_min_length),
+                            '-j', str(self.core_count),
+                            forward_fastq_fp,
+                            reverse_fastq_fp
+                        ],
+                            log_file=os.path.join(output_dir, 'log'),
+                            debug=self.debug
+                        )
+            else:
+                input_files_glob = os.path.join(input_dir, '*.fastq.gz')
+                input_file_list = glob.glob(input_files_glob)
+                for input_file in input_file_list:
+                    pass
+                    #TODO FINISH THIS
 
-                trimmed_forward_fastq_fp = os.path.join(
-                    output_dir,
-                    re.sub(
-                        string=forward_fastq_basename,
-                        pattern='_([0R])1',
-                        repl=lambda m: '_trimmed_{}1'.format(m.group(1))))
-                trimmed_reverse_fastq_fp = os.path.join(
-                    output_dir,
-                    re.sub(
-                        string=forward_fastq_basename,
-                        pattern='_([0R])1',
-                        repl=lambda m: '_trimmed_{}2'.format(m.group(1))))
-
-                run_cmd([
-                        self.cutadapt_executable_fp,
-                        '-a', self.forward_primer,
-                        '-A', self.reverse_primer,
-                        '-o', trimmed_forward_fastq_fp,
-                        '-p', trimmed_reverse_fastq_fp,
-                        '-m', str(self.cutadapt_min_length),
-                        '-j', str(self.core_count),
-                        forward_fastq_fp,
-                        reverse_fastq_fp
-                    ],
-                    log_file = os.path.join(output_dir, 'log'),
-                    debug=self.debug
-                )
-
-                self.complete_step(log, output_dir)
+        self.complete_step(log, output_dir)
         return output_dir
         
 
