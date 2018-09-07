@@ -46,7 +46,7 @@ def get_args():
     arg_parser.add_argument('-p', '--paired-ends', action='store_true', default=False,
                             help='flag that indicates whether your data is in paired ends. If so, files must be named \"SAMPLENAME_R1.fastq\", \"SAMPLENAME_R1.fastq\"')
 
-    arg_parser.add_argument('--steps', default=6, type=int,
+    arg_parser.add_argument('--steps', default=7, type=int,
                             help='Indicates that pipeline should only run up to this step. Optional steps (such as remove_primers or combine_runs) will not count against this step count')
 
     arg_parser.add_argument('--debug', default=False, action='store_true',
