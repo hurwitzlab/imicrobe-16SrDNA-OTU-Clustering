@@ -938,7 +938,7 @@ class Pipeline:
                     with open(sample, 'rb') as infile:
                         shutil.copyfileobj(infile, outfile) 
             input_fps.append(output_file)
-            concat_fp = self.concat_all_samples_for_step_06(input_fps, output_dir, log)
+            concat_fp = self.concat_all_samples_for_step_07(input_fps, output_dir, log)
         return concat_fp
         
     def concat_all_samples_for_step_07(self, input_fps, output_dir, log):
