@@ -141,13 +141,17 @@ def check_args(args,
     if cutadapt_min_length < -1 or cutadapt_min_length == 0:
         print("Invalid value for --cutadapt-min-length", file=sys.stderr)
         exit()
+    if cutadapt_min_length != -1 and cutadapt_3prime_adapter_file_forward == '' and cutadapt_3prime_adapter_file_reverse == '' and cutadapt_5prime_adapter_file_forward == '' and cutadapt_5prime_adapter_file_reverse == '' \
+    and forward_primer_3prime == '' and reverse_primer_3prime == '' and forward_primer_5prime == '' and reverse_primer_5prime == '':
+        print('Cutadapt use was indicated but no adapters or adapters were given')
+        exit()
     if cutadapt_3prime_adapter_file_forward is not "" and not os.path.isfile(cutadapt_3prime_adapter_file_forward):
         print("{} is not a file".format(cutadapt_3prime_adapter_file_forward), file=sys.stderr)
         exit()
     if cutadapt_3prime_adapter_file_reverse is not "" and not os.path.isfile(cutadapt_3prime_adapter_file_reverse):
         print("{} is not a file".format(cutadapt_3prime_adapter_file_reverse), file=sys.stderr)
         exit()
-    if paired_ends is True and ((cutadapt_3prime_adapter_file_forward is "" and cutadapt_3prime_adapter_file_reverse is not "") or (cutadapt_3prime_adapter_file_forward is not "" and cutadapt_3prime_adapter_file_reverse is "")):
+    if paired_ends is True and cutadapt_min_length != -1 and ((cutadapt_3prime_adapter_file_forward is "" and cutadapt_3prime_adapter_file_reverse is not "") or (cutadapt_3prime_adapter_file_forward is not "" and cutadapt_3prime_adapter_file_reverse is "")):
         print("Paired ends is selected and only one 3\' adapter file is passed. You most likely forgot to include the other 3\' adapter file", file=sys.stderr)
         exit()
     if cutadapt_5prime_adapter_file_forward is not "" and not os.path.isfile(cutadapt_5prime_adapter_file_forward):
@@ -156,7 +160,7 @@ def check_args(args,
     if cutadapt_5prime_adapter_file_reverse is not "" and not os.path.isfile(cutadapt_5prime_adapter_file_reverse):
         print("{} is not a file".format(cutadapt_5prime_adapter_file_reverse), file=sys.stderr)
         exit()
-    if paired_ends is True and ((cutadapt_5prime_adapter_file_forward is "" and cutadapt_5prime_adapter_file_reverse is not "") or (cutadapt_5prime_adapter_file_forward is not "" and cutadapt_5prime_adapter_file_reverse is "")):
+    if paired_ends is True and cutadapt_min_length != -1 and ((cutadapt_5prime_adapter_file_forward is "" and cutadapt_5prime_adapter_file_reverse is not "") or (cutadapt_5prime_adapter_file_forward is not "" and cutadapt_5prime_adapter_file_reverse is "")):
         print("Paired ends is selected and only one 5\' adapter file is passed. You most likely forgot to include the other 5\' adapter file", file=sys.stderr)
         exit()
     if forward_primer_3prime is not "" and any((c not in IUPAC_chars) for c in forward_primer_3prime):
