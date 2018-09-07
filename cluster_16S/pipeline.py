@@ -376,7 +376,7 @@ class Pipeline:
             cmd_str = "{} ".format(self.cutadapt_executable_fp)
             if self.cutadapt_3prime_adapter_file_forward is not "":
                 cmd_str = "{}-a file:{} ".format(cmd_str, self.cutadapt_3prime_adapter_file_forward)
-            else:
+            elif self.forward_primer_3prime is not "":
                 cmd_str = "{}-a {} ".format(cmd_str, self.forward_primer_3prime)
             if self.cutadapt_5prime_adapter_file_forward is not "":
                 cmd_str = "{}-g file:{} ".format(cmd_str, self.cutadapt_5prime_adapter_file_forward)
@@ -385,21 +385,22 @@ class Pipeline:
             if self.paired_ends is True:
                 if self.cutadapt_3prime_adapter_file_reverse is not "":
                     cmd_str = "{}-A file:{} ".format(cmd_str, self.cutadapt_3prime_adapter_file_reverse)
-                else:
+                elif self.reverse_primer_3prime is not "":
                     cmd_str = "{}-A {} ".format(cmd_str, self.reverse_primer_3prime)
                 if self.cutadapt_5prime_adapter_file_reverse is not "":
                     cmd_str = "{}-G file:{} ".format(cmd_str, self.cutadapt_5prime_adapter_file_reverse)
                 elif self.reverse_primer_5prime is not "":
                     cmd_str = "{}-G {} ".format(cmd_str, self.reverse_primer_5prime)
             cmd_str = "{} -m {} ".format(cmd_str, str(self.cutadapt_min_length))
-            cmd_str = "{} -j {} ".format(cmd_str, str(self.cutadapt_min_length))
-            cmd_str_arr = cmd_str.split(cmd_str)
+            cmd_str = "{} -j {} ".format(cmd_str, str(self.core_count))
+            cmd_str_arr = cmd_str.split()
 
             if self.paired_ends is True:
                 for forward_fastq_fp in get_forward_fastq_files(input_dir=input_dir, debug=self.debug):
                     log.info('removing forward primers from file "%s"', forward_fastq_fp)
                     forward_fastq_basename = os.path.basename(forward_fastq_fp)
                     reverse_fastq_fp = get_associated_reverse_fastq_fp(forward_fp=forward_fastq_fp)
+                    reverse_fastq_basename = os.path.basename(reverse_fastq_fp)
                     log.info('removing reverse primers from file "%s"', reverse_fastq_fp)
                     trimmed_forward_fastq_fp = os.path.join(
                         output_dir,
@@ -410,7 +411,7 @@ class Pipeline:
                     trimmed_reverse_fastq_fp = os.path.join(
                         output_dir,
                         re.sub(
-                            string=forward_fastq_basename,
+                            string=reverse_fastq_basename,
                             pattern='\.fastq\.gz$',
                             repl='_trimmed.fastq.gz'))
                     run_cmd([
