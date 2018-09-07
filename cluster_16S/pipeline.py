@@ -273,6 +273,9 @@ class Pipeline:
         if self.multiple_runs is True:
             output_dir_list.append(self.step_02_1_combine_runs(input_dir=output_dir_list[-1]))
         output_dir_list.append(self.step_03_combine_samples(input_dir=output_dir_list[-1]))
+        step_counter += 1
+        if self.steps == step_counter:
+            return output_dir_list
         output_dir_list.append(self.step_04_dereplicate_sort_remove_low_abundance_reads(input_dir=output_dir_list[-1]))
         step_counter += 1
         if self.steps == step_counter:
