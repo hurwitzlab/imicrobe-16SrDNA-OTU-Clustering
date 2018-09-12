@@ -870,14 +870,11 @@ class Pipeline:
                     repl='.uchime.otutab.txt'
                 )
             )
-            otu_table_fp = os.path.join(
-                output_dir,
-                re.sub(
+            otu_table_fp = re.sub(
                     string=otu_table_fp,
                     pattern='\.gz$',
                     repl=''
-                )
-            )
+                    )
             otu_table_biom_fp = os.path.join(
                 output_dir,
                 re.sub(
