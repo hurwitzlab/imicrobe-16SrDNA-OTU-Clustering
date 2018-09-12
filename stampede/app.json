@@ -69,30 +69,93 @@
         "argument": "--uchime-ref-db-fp ",
         "showArgument": true
       }
-    }
-  ],
-  "parameters": [
+    },
     {
-      "id": "forward_primer",
+      "id": "CUTADAPT_3PRIME_ADAPTER_FILE_FORWARD",
       "value": {
-        "default": "ATTAGAWACCCVNGTAGTCC",
+        "default": "",
         "required": false,
-        "type": "string",
         "visible": true
       },
       "semantics": {
+        "fileTypes": [
+          "raw-0"
+        ],
+        "maxCardinality":1
       },
       "details": {
-        "argument": "--forward-primer ",
-        "description": "Removed by Cutadapt",
-        "label": "Forward Primer",
+        "description": "If your samples contain multiple 3' adapter sequences, put all of the adapters into a .fasta or .fa file. For paired-end reads, this file will be for the first (R1) paired-end files only.",
+        "label": "File containing 3' adapters to be removed",
+        "argument": "--cutadapt-3prime-adapter-file-forward ",
         "showArgument": true
       }
     },
     {
-      "id": "reverse_primer",
+      "id": "CUTADAPT_3PRIME_ADAPTER_FILE_REVERSE",
       "value": {
-        "default": "TTACCGCGGCKGCTGGCAC",
+        "default": "",
+        "required": false,
+        "visible": true
+      },
+      "semantics": {
+        "fileTypes": [
+          "raw-0"
+        ],
+        "maxCardinality":1
+      },
+      "details": {
+        "description": "If your samples are paired-end reads and they contain multiple 3' adapter sequences, put all of the adapters into a .fasta or .fa file. This file will be for the second (R2) paired-end files only.",
+        "label": "File containing 3' adapters to be removed from second read of paired-end reads",
+        "argument": "--cutadapt-3prime-adapter-file-reverse ",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "CUTADAPT_5PRIME_ADAPTER_FILE_FORWARD",
+      "value": {
+        "default": "",
+        "required": false,
+        "visible": true
+      },
+      "semantics": {
+        "fileTypes": [
+          "raw-0"
+        ],
+        "maxCardinality":1
+      },
+      "details": {
+        "description": "If your samples contain multiple 5' adapter sequences, put all of the adapters into a .fasta or .fa file. For paired-end reads, this file will be for the first (R1) paired-end files only.",
+        "label": "File containing 5' adapters to be removed",
+        "argument": "--cutadapt-5prime-adapter-file-forward ",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "CUTADAPT_5PRIME_ADAPTER_FILE_REVERSE",
+      "value": {
+        "default": "",
+        "required": false,
+        "visible": true
+      },
+      "semantics": {
+        "fileTypes": [
+          "raw-0"
+        ],
+        "maxCardinality":1
+      },
+      "details": {
+        "description": "If your samples are paired-ends reads and they contain multiple 5' adapter sequences, put all of the adapters into a .fasta or .fa file. This file will be for the second (R2) paired-end files only.",
+        "label": "File containing 5' adapters to be removed from second read of paired-end reads",
+        "argument": "--cutadapt-5prime-adapter-file-reverse ",
+        "showArgument": true
+      }
+    }
+  ],
+  "parameters": [
+    {
+      "id": "forward_primer_3prime",
+      "value": {
+        "default": "",
         "required": false,
         "type": "string",
         "visible": true
@@ -100,9 +163,60 @@
       "semantics": {
       },
       "details": {
-        "argument": "--reverse-primer ",
-        "description": "Removed by Cutadapt",
-        "label": "Reverse Primer",
+        "argument": "--forward-primer-3prime ",
+        "description": "Removed by Cutadapt, IUPAC characters are supported",
+        "label": "3Prime Adapter",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "reverse_primer_3prime",
+      "value": {
+        "default": "",
+        "required": false,
+        "type": "string",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--reverse-primer-3prime ",
+        "description": "Removed by Cutadapt, IUPAC characters are supported",
+        "label": "3Prime Adapter on second read of paired-end reads",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "forward_primer_5prime",
+      "value": {
+        "default": "",
+        "required": false,
+        "type": "string",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--forward-primer-5prime ",
+        "description": "Removed by Cutadapt, IUPAC characters are supported",
+        "label": "5Prime Adapter",
+        "showArgument": true
+      }
+    },
+    {
+      "id": "reverse_primer_5prime",
+      "value": {
+        "default": "",
+        "required": false,
+        "type": "string",
+        "visible": true
+      },
+      "semantics": {
+      },
+      "details": {
+        "argument": "--reverse-primer-5prime ",
+        "description": "Removed by Cutadapt, IUPAC characters are supported",
+        "label": "5Prime Adapter on second read of paired-end reads",
         "showArgument": true
       }
     },
@@ -177,7 +291,7 @@
     {
       "id": "steps",
       "value": {
-        "default": 6,
+        "default": 7,
         "required": false,
         "type": "number",
         "visible": true
