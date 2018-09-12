@@ -883,14 +883,11 @@ class Pipeline:
                     repl='.uchime.otutab.biom'
                 )
             )
-            otu_table_biom_fp = os.path.join(
-                output_dir,
-                re.sub(
+            otu_table_biom_fp = re.sub(
                     string=otu_table_biom_fp,
                     pattern='\.gz$',
                     repl=''
-                )
-            )
+                    )
             run_cmd([
                     self.vsearch_executable_fp,
                     '--usearch_global', fasta_fp,
