@@ -67,7 +67,7 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
 --input-dir INPUT_PATH (required): path to input directory containing input files
 --work-dir OUTPUT_PATH (optional): path to directory where output will be written. Default: INPUT_DIR/output
 --core-count CORE_COUNT (optional): number of cores to run the pipeline on. Default: 1
---uchime-ref-db-fp DB_FP (required/optional): path to reference database for chimera detection. Having a database is required, but the Singularity container has a database built in and is the default value.
+--uchime-ref-db-fp DB_PATH (required/optional): path to reference database for chimera detection. Having a database is required, but the Singularity container has a database built in and is the default value.
 --paired-ends (optional): flag that indicates reads are split into paired ends. Triggers use of PEAR to merge paired-end reads.
 --pear-min-overlap OVERLAP (optional): minimum number of overlapping bases needed between paired-end reads for a mate pair to form.
 --pear-min-assembly-length LENGTH (optional): minimum length of the assembled read following PEAR mate pairing. Reads will be removed if they're shorter than this length.
@@ -76,8 +76,14 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
 --vsearch-filter-trunclen LENGTH (required): size to truncate reads to during QC. Reads shorter than this length will be removed.
 --vsearch-derep-minuniquesize SIZE (required): discard sequences with a post-dereplication abundance value less than SIZE
 --cutadapt-min-length LENGTH (optional): minimum length of reads following adapter removal. Reads shorter than this length will be discarded. USING THIS ARGUMENT TRIGGERS ADAPTER REMOVAL.
---forward-primer SEQUENCE (optional): sequence of forward primer to be used with Cutadapt. Supports IUPAC nomenclature
---reverse-primer SEQUENCE (optional): sequence of reverse primer to be used with Cutadapt. Supports IUPAC nomenclature
+--forward-primer-3prime SEQUENCE (optional): sequence of 3' primer to be used with Cutadapt. If paired-ends is selected, this is the 3' primer for the R1 read. Supports IUPAC nomenclature
+--forward-primer-5prime SEQUENCE (optional): sequence of 5' primer to be used with Cutadapt. If paired-ends is selected, this is the 5' primer for the R1 read. Supports IUPAC nomenclature
+--reverse-primer-3prime SEQUENCE (optional): sequence of 3' primer on the second read (R2) of paired-end reads to be used with Cutadapt. Supports IUPAC nomenclature
+--reverse-primer-5prime SEQUENCE (optional): sequence of 5' primer on the second read (R2) of paired-end reads to be used with Cutadapt. Supports IUPAC nomenclature
+--cutadapt-3prime-adapter-file-forward FILE_PATH (optional): if your reads potentially have multiple 3' primers or adapters, put them all in a .fasta or .fa file and pass the file path here. Supports IUPAC nomenclature
+--cutadapt-5prime-adapter-file-forward FILE_PATH (optional): if your reads potentially have multiple 5' primers or adapters, put them all in a .fasta or .fa file and pass the file path here. Supports IUPAC nomenclature
+--cutadapt-3prime-adapter-file-reverse FILE_PATH (optional): if your paired-end reads potentially have multiple 3' primers or adapters on the second (R2) reads, put them all in a .fasta or .fa file and pass the file path here. Supports IUPAC nomenclature
+--cutadapt-5prime-adapter-file-reverse FILE_PATH (optional): if your paired-end reads potentially have multiple 5' primers or adapters on the second (R2) reads, put them all in a .fasta or .fa file and pass the file path here. Supports IUPAC nomenclature
 --multiple-runs (optional): flag that indicates that samples are split across multiple runs. Multiple runs should be named SAMPLE_R1/2_run1.fastq, SAMPLE_R1/2_run2.fastq, etc.
 --steps NUM_STEPS (optional): indicates that pipeline should only run up to this step. Optional steps (such as remove_primers or combine_runs) will not count against this step count
 --debug (optional): flag that triggers debugging information to be written to stderr. Warnings and errors will still be written without this flag set.
@@ -87,7 +93,7 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
 
 My input data will be in /foo and my output data will be in /bar, all examples will be using the Singularity Container.
 
-No adapters, single runs:
+####No primers, single runs:
 
 ```
 $ ls /foo
@@ -102,26 +108,25 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --vsearch-filter-trunclen 245 \
   --vsearch-derep-minuniquesize 3
 ```
-Inside /bar, there'll be 6 folders for each step of the pipeline:
+Inside /bar, there'll be 7 folders for each step of the pipeline:
 ```
 $ ls /bar
 /bar/step_01_copy_and_compress
 /bar/step_02_qc_reads_with_vsearch
-/bar/step_03_dereplicate_sort_remove_low_abundance_reads
-/bar/step_04_cluster_97_percent
-/bar/step_05_reference_based_chimera_detection
-/bar/step_06_create_otu_table
+/bar/step_03_combine_samples
+/bar/step_04_dereplicate_sort_remove_low_abundance_reads
+/bar/step_05_cluster_97_percent
+/bar/step_06_reference_based_chimera_detection
+/bar/step_07_create_otu_table
 
-$ ls /bar/step_06_create_otu_table
-sample1_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.biom
-sample1_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.txt
-sample2_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.biom
-sample2_trimmed_merged_001_rebarcoded1_merged.uchime.otutab.txt
+$ ls /bar/step_07_create_otu_table
+total_combined_ee1_trunc245.uchime.otutab.biom
+total_combined_ee1_trunc245.uchime.otutab.txt
 log
 ```
 
 
-Reads have adapters, multiple runs, and are paired ends:
+####Reads have primers on 5' and 3' ends, multiple runs, and are paired ends:
 
 ```
 $ ls /foo
@@ -142,11 +147,13 @@ $ singularity run singularity/imicrobe-16SrDNA-OTU-Clustering.img \
   --vsearch-filter-trunclen 245 \
   --vsearch-derep-minuniquesize 3 \
   --cutadapt-min-length 100 \
-  --forward-primer ACTGACTG \
-  --reverse-primer GTTCAATC \
+  --forward-primer-3prime ACTGACTG \
+  --reverse-primer-3prime GTTCAATC \
+  --forward-primer-5prime CCTTATAT \
+  --reverse-primer-5prime GGGCCCTA \
   --multiple-runs
 ```
-Inside /bar, there'll be 9 folders for each step of the pipeline:
+Inside /bar, there'll be 10 folders for each step of the pipeline:
 ```
 $ ls /bar
 /bar/step_01_copy_and_compress
@@ -154,13 +161,14 @@ $ ls /bar
 /bar/step_01_2_merge_forward_reverse_reads_with_pear
 /bar/step_02_qc_reads_with_vsearch
 /bar/step_02_1_combine_runs
-/bar/step_03_dereplicate_sort_remove_low_abundance_reads
-/bar/step_04_cluster_97_percent
-/bar/step_05_reference_based_chimera_detection
-/bar/step_06_create_otu_table
+/bar/step_03_combine_samples
+/bar/step_04_dereplicate_sort_remove_low_abundance_reads
+/bar/step_05_cluster_97_percent
+/bar/step_06_reference_based_chimera_detection
+/bar/step_07_create_otu_table
 
-$ ls /bar/step_06_create_otu_table
-sample1_trimmed_merged_001_rebarcoded1_concat_runs.uchime.otutab.biom
-sample1_trimmed_merged_001_rebarcoded1_concat_runs.uchime.otutab.txt
+$ ls /bar/step_07_create_otu_table
+total_combined_trimmed_assembled_ee1_trunc245.uchime.otutab.biom
+total_combined_trimmed_assembled_ee1_trunc245.uchime.otutab.txt
 log
 ```
