@@ -377,21 +377,38 @@ class Pipeline:
             cmd_str = "{} ".format(self.cutadapt_executable_fp)
             if self.cutadapt_3prime_adapter_file_forward is not "":
                 cmd_str = "{}-a file:{} ".format(cmd_str, self.cutadapt_3prime_adapter_file_forward)
+                log.info("using 3' adapter file '%s'", self.cutadapt_3prime_adapter_file_forward)
             elif self.forward_primer_3prime is not "":
-                cmd_str = "{}-a {} ".format(cmd_str, self.forward_primer_3prime)
-            if self.cutadapt_5prime_adapter_file_forward is not "":
+                if self.forward_primer_5prime is not "":
+                    cmd_str = "{}-a {}...{} ".format(cmd_str, self.forward_primer_5prime, self.forward_primer_3prime)
+                    log.info('using linked adapters with "%s" and "%s"', self.forward_primer_5prime, self.forward_primer_3prime)
+                else:
+                    cmd_str = "{}-a {} ".format(cmd_str, self.forward_primer_3prime)
+                    log.info("using 3' adapter with '%s'", self.forward_primer_3prime)
+            elif self.cutadapt_5prime_adapter_file_forward is not "":
                 cmd_str = "{}-g file:{} ".format(cmd_str, self.cutadapt_5prime_adapter_file_forward)
+                log.info("using 5' adapter file '%s'", self.cutadapt_5prime_adapter_file_forward)
             elif self.forward_primer_5prime is not "":
                 cmd_str = "{}-g {} ".format(cmd_str, self.forward_primer_5prime)
+                log.info("using 5' adapter with '%s'", self.forward_primer_5prime)
             if self.paired_ends is True:
                 if self.cutadapt_3prime_adapter_file_reverse is not "":
                     cmd_str = "{}-A file:{} ".format(cmd_str, self.cutadapt_3prime_adapter_file_reverse)
+                    log.info("using 3' adapter file for R2 '%s'", self.cutadapt_3prime_adapter_file_reverse)
                 elif self.reverse_primer_3prime is not "":
-                    cmd_str = "{}-A {} ".format(cmd_str, self.reverse_primer_3prime)
-                if self.cutadapt_5prime_adapter_file_reverse is not "":
+                    if self.reverse_primer_5prime is not "":
+                        cmd_str = "{}-A {}...{} ".format(cmd_str, self.reverse_primer_3prime, self.reverse_primer_5prime)
+                        log.info('using linked adapters for R2 with "%s" and "%s"', self.reverse_primer_3prime, self.reverse_primer_5prime)
+                    else:
+                        cmd_str = "{}-A {} ".format(cmd_str, self.reverse_primer_3prime)
+                        log.info("using 3' adapter for R2 '%s'", self.reverse_primer_3prime)
+                elif self.cutadapt_5prime_adapter_file_reverse is not "":
                     cmd_str = "{}-G file:{} ".format(cmd_str, self.cutadapt_5prime_adapter_file_reverse)
+                    log.info("using 5' adapter file for R2 '%s'", self.cutadapt_5prime_adapter_file_reverse)
                 elif self.reverse_primer_5prime is not "":
                     cmd_str = "{}-G {} ".format(cmd_str, self.reverse_primer_5prime)
+                    log.info("using 5' adapter for R2 '%s'", self.reverse_primer_5prime)                    
+
             cmd_str = "{} -m {} ".format(cmd_str, str(self.cutadapt_min_length))
             cmd_str = "{} -j {} ".format(cmd_str, str(self.core_count))
             cmd_str_arr = cmd_str.split()
@@ -975,12 +992,13 @@ class Pipeline:
                                 string=input_name,
                                 pattern='_concat_runs',
                                 repl='')
+                input_name = input_name.replace('.', '_').replace('-', '_')
                 with open(input_fp, 'r') as f:
                     for line_ct, l in enumerate(f):
                         if line_ct % 4 == 0:
                             pass
                             l = l[1:]
-                            l = '@{}:{}'.format(input_name, l)
+                            l = '@{}_{}'.format(input_name, l)
                         combined_out.write(l)
                 os.remove(input_fp)
         return combined_fp
