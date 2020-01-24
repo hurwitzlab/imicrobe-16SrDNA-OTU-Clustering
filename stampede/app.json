@@ -13,7 +13,7 @@
   "helpURI": "https://github.com/hurwitzlab/imicrobe-16SrDNA-OTU-Clustering",
   "label": "iMicrobe 16SrDNA-OTU-Clustering",
   "longDescription": "iMicrobe 16S rDNA OTU Clustering",
-  "modules": [],
+  "modules": ["load tacc-singularity"],
   "name": "16s_cluster",
   "ontology": [
     "http://sswapmeet.sswap.info/agave/apps/Application"
