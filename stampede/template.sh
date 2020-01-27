@@ -27,6 +27,6 @@ echo "paired_ends: ${paired_ends}"
 echo "debug: ${debug}"
 echo "steps: ${steps}"
 
-sh run.sh ${INPUT_DIR} ${UCHIME_REF_DB} ${CUTADAPT_3PRIME_ADAPTER_FILE_FORWARD} ${CUTADAPT_3PRIME_ADAPTER_FILE_REVERSE} ${CUTADAPT_5PRIME_ADAPTER_FILE_FORWARD} ${CUTADAPT_5PRIME_ADAPTER_FILE_REVERSE} ${core_count} ${cutadapt_min_length} ${pear_min_overlap} ${pear_max_assembly_length} ${pear_min_assembly_length} ${vsearch_filter_maxee} ${vsearch_filter_trunclen} ${vsearch_derep_minuniquesize} ${forward_primer_3prime} ${reverse_primer_3prime} ${forward_primer_5prime} ${reverse_primer_5prime} ${multiple_runs} ${paired_ends} ${steps} ${debug}
+bash run.sh ${INPUT_DIR} ${UCHIME_REF_DB} ${CUTADAPT_3PRIME_ADAPTER_FILE_FORWARD} ${CUTADAPT_3PRIME_ADAPTER_FILE_REVERSE} ${CUTADAPT_5PRIME_ADAPTER_FILE_FORWARD} ${CUTADAPT_5PRIME_ADAPTER_FILE_REVERSE} ${core_count} ${cutadapt_min_length} ${pear_min_overlap} ${pear_max_assembly_length} ${pear_min_assembly_length} ${vsearch_filter_maxee} ${vsearch_filter_trunclen} ${vsearch_derep_minuniquesize} ${forward_primer_3prime} ${reverse_primer_3prime} ${forward_primer_5prime} ${reverse_primer_5prime} ${multiple_runs} ${paired_ends} ${steps} ${debug}
 
 echo "Ended $(date)"
