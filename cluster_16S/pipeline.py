@@ -646,11 +646,11 @@ class Pipeline:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             log.info('input directory listing:\n\t%s', '\n\t'.join(os.listdir(input_dir)))
-            input_files_glob = os.path.join(input_dir, '*run1*.*.fastq.gz')
+            input_files_glob = os.path.join(input_dir, '*L001*.*.fastq.gz')
             log.info('input file glob: "%s"', input_files_glob)
             run_fp_list = sorted(glob.glob(input_files_glob))
             if len(run_fp_list) == 0:
-                raise PipelineException('found no run1*.fastq.gz files in directory "{}"'.format(input_dir))
+                raise PipelineException('found no *L001*.fastq.gz files in directory "{}"'.format(input_dir))
             for run in run_fp_list:
                 sample_name = os.path.basename(run).split('_run1')[0]
                 trailing_name = os.path.basename(run).split('_run1')[1]
