@@ -639,6 +639,7 @@ class Pipeline:
         self.complete_step(log, output_dir)
         return output_dir
 
+    #This function
     def step_02_1_combine_runs(self, input_dir):
         log, output_dir = self.initialize_step()
         if len(os.listdir(output_dir)) > 0:
