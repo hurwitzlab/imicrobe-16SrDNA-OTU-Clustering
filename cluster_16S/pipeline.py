@@ -932,22 +932,22 @@ class Pipeline:
         step_num = ''
         if self.paired_ends is True:
             log.info('Concatenating from step_01_2')
-            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*run1*.assembled*.fastq.gz'))
+            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01_2*', '*L001*.assembled*.fastq.gz'))
             step_num = '01_2'
         elif self.paired_ends is False and self.cutadapt_min_length != -1:
             log.info('Concatenating from step_01_1')
-            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01_1*', '*run1*.fastq.gz'))
+            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01_1*', '*L001*.fastq.gz'))
             step_num = '01_1'
         elif self.paired_ends is False and self.cutadapt_min_length == -1:
             log.info('Concatenating from step_01_copy_and_compress')
-            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01*', '*run1*.fastq.gz'))
+            input_glob = glob.glob(os.path.join(self.work_dir, 'step_01*', '*L001*.fastq.gz'))
             step_num = '01'
         run1_fps = sorted(input_glob)
-        log.info('run1 fps: "%s"', str(run1_fps))
+        log.info('L001 fps: "%s"', str(run1_fps))
         input_fps = []
         concat_fp = ""
         for run in run1_fps:
-            sample_name = os.path.basename(run).split('_run1')[0]
+            sample_name = os.path.basename(run).split('_L001')[0]
             if self.paired_ends is True:
                 sample_glob = os.path.join(work_dir, 'step_%s*' % step_num, '*%s*.assembled*.fastq.gz*' % sample_name)
             else:
