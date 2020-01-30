@@ -41,7 +41,7 @@ def get_args():
                             help='number of cores to use')
 
     arg_parser.add_argument('-m', '--multiple-runs', action='store_true', default=False,
-                            help='indicates whether samples are split across multiple runs. If so, files must be named \"SAMPLENAME_run1.fastq\", \"SAMPLENAME_run2.fastq\", ...')
+                            help='indicates whether samples are split across multiple runs. If so, files must be named \"SAMPLENAME_L001.fastq\", \"SAMPLENAME_L002.fastq\", ...')
 
     arg_parser.add_argument('-p', '--paired-ends', action='store_true', default=False,
                             help='flag that indicates whether your data is in paired ends. If so, files must be named \"SAMPLENAME_R1.fastq\", \"SAMPLENAME_R1.fastq\"')
@@ -652,8 +652,8 @@ class Pipeline:
             if len(run_fp_list) == 0:
                 raise PipelineException('found no *L001*.fastq.gz files in directory "{}"'.format(input_dir))
             for run in run_fp_list:
-                sample_name = os.path.basename(run).split('_run1')[0]
-                trailing_name = os.path.basename(run).split('_run1')[1]
+                sample_name = os.path.basename(run).split('_L001')[0]
+                trailing_name = os.path.basename(run).split('_L001')[1]
                 log.info('Sample name: "%s"', sample_name)
                 run_files_glob = os.path.join(input_dir, '%s*.fastq.gz' % sample_name)
                 run_files_list = sorted(glob.glob(run_files_glob))
