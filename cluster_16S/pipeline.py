@@ -965,12 +965,12 @@ class Pipeline:
         
     def concat_all_samples_for_step_07(self, input_fps, output_dir, log):
         log.info('Concatenating raw reads from all samples')
-        log.info('Sample fps for concat_all_samples_for_step_06: "%s"', str(input_fps))
+        log.info('Sample fps for concat_all_samples_for_step_07: "%s"', str(input_fps))
         log.info('unzipping input files')
         uncompressed_input_fps = ungzip_files(*input_fps, target_dir=output_dir)
-        if self.multiple_runs is True:
-            for i in input_fps:
-                os.remove(i)
+        #if self.multiple_runs is True:
+        #    for i in input_fps:
+        #        os.remove(i)
         log.info('uncompressed file list: "{}"'.format(uncompressed_input_fps))
         combined_fp = '{}.fastq'.format(self.get_combined_file_name(output_dir))
         with open(combined_fp, 'w') as combined_out:
