@@ -843,7 +843,7 @@ class Pipeline:
             log.warning('output directory "%s" is not empty, this step will be skipped', output_dir)
         else:
             otus_fp, *_ = glob.glob(os.path.join(input_dir, '*rad3.uchime.fasta'))
-            shutil.copyfile(otus_fp, os.path.join(output_dir, os.path.basename(otus_fp)))
+            shutil.copyfile(otus_fp, os.path.join(output_dir, "otu_sequences.fasta"))
             #Get raw reads from earlier steps
             concat_fp = ''
             if self.multiple_runs is True:
